@@ -54,7 +54,14 @@ pub struct PySubMesh {
     #[pyo3(get, set)]
     pub material_index: usize,       //originally u32
     #[pyo3(get, set)]
-    pub mat_uv_indicies: Vec<usize>, //originally bool
+    pub mat_uv_indicies: [u8; 8], //originally bool
+}
+
+#[pymethods]
+impl PyMesh {
+    fn get_mesh_indicies(&self) -> Vec<Index> {
+        self.submeshes.iter().flat_map(|x| x.indicies.clone()).collect()
+    }
 }
 
 impl From<VertexBuffers> for PVertexBuffers {
