@@ -241,46 +241,37 @@ impl SubMesh {
         endian: Endianness,
     ) -> impl Fn(&'b [u8]) -> IResult<&'b [u8], Self> {
         move |i: &'b [u8]| {
-            // println!("SUBMESH BEGIN");
             let cto = |f| count_then_offset(i0, u32_usize(endian), f);
-            println!("\t----------SubMesh start----------");
-            println!("\t left: {}", 0x12FEE0 - i.len());
-            //skip 4 bytes
-            let i = &i[4..];
+            let (i, unused_flags) = u32(endian)(i)?;
             let (i, bounding_sphere) = BoundingSphere::parse(i, endian)?;
-            println!("\t bounds: {:?}", bounding_sphere);
             let (i, material_index) = u32_usize(endian)(i)?;
             let mut mat_uv_indicies = [0; 8];
             mat_uv_indicies.copy_from_slice(&i[..8]);
             let i = &i[8..];
-            let (i, bone_indicies) = cto(usize(u16(endian)))(i)?;
-            let (i, _bones_per_vert) = u32(endian)(i)?;
-            println!("\tmat idx: {} matuv: {:?} bones: {}, bones per vert {}", material_index, mat_uv_indicies, bone_indicies.len(), _bones_per_vert);
-            let (i, primitive) = PrimitiveType::parse(endian)(i)?;
-            let primitive = primitive.expect("Unknown primtiive type");
-            let (i, index_type) = IndexType::parse(endian)(i)?;
-            let index_type = index_type.expect("Unknown index type");
-            let (i, index_count) = u32_usize(endian)(i)?;
-            let len = i.len();
+            let (i, bone_indicies) = cto(u32_usize(endian))(i)?;
+            let (i, bones_per_vertex) = u32_usize(endian)(i)?;
+            let (i, primitive_type) = PrimitiveType::parse(endian)(i)?;
+            let primitive_type = primitive_type.expect("Unexpected primitive type found");
+            let (i, index_format) = IndexType::parse(endian)(i)?;
+            let index_format = index_format.expect("Unexpected index format found");
+            let (i, index_cnt) = u32_usize(endian)(i)?;
             let (i, indicies) = offset_then(
                 i0,
-                Primitives::parse(index_type, primitive, index_count, endian),
+                Primitives::parse(index_format, primitive_type, index_cnt, endian),
                 endian,
             )(i)?;
-            println!("index len {}", index_count);
-            let len = len -i.len();
-            let i = &i[8..];
-            let i = &i[32-8..];
-            println!("\tsubmesh end - index len {}", len);
-            // println!("{:?} {:?}", bone_indicies, primitive);
+            let (i, flags) = u32(endian)(i)?;
+            //skip the reserved data
+            let i = &i[6 * 4..];
+            let (i, index_offset) = u32_usize(endian)(i)?;
             Ok((
                 i,
                 Self {
                     bounding_sphere,
+                    indicies,
+                    bone_indicies,
                     material_index,
                     mat_uv_indicies,
-                    bone_indicies,
-                    indicies,
                 },
             ))
         }

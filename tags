@@ -1838,6 +1838,7 @@ Primitives	src/primitive.rs	/^pub enum Primitives {$/;"	g
 PyBone	src/skeleton/py_ffi.rs	/^impl From<Bone<'_>> for PyBone {$/;"	c
 PyBone	src/skeleton/py_ffi.rs	/^pub struct PyBone {$/;"	s
 PyMesh	src/mesh/py_ffi.rs	/^impl From<Mesh<'_>> for PyMesh {$/;"	c
+PyMesh	src/mesh/py_ffi.rs	/^impl PyMesh {$/;"	c
 PyMesh	src/mesh/py_ffi.rs	/^pub struct PyMesh {$/;"	s
 PyObjectSet	src/py_ffi.rs	/^impl From<ObjectSet<'_>> for PyObjectSet {$/;"	c
 PyObjectSet	src/py_ffi.rs	/^pub struct PyObjectSet {$/;"	s
@@ -2430,6 +2431,7 @@ from	src/primitive.rs	/^    fn from(primitives: Primitives) -> Self {$/;"	P	impl
 from	src/py_ffi.rs	/^    fn from(obj: Object<'_>) -> Self {$/;"	P	implementation:PObject
 from	src/py_ffi.rs	/^    fn from(objset: ObjectSet<'_>) -> Self {$/;"	P	implementation:PyObjectSet
 from	src/skeleton/py_ffi.rs	/^    fn from(skel: Skeleton<'_>) -> Self {$/;"	P	implementation:PySkeleton
+get_mesh_indicies	src/mesh/py_ffi.rs	/^    fn get_mesh_indicies(&self) -> Vec<Index> {$/;"	P	implementation:PyMesh
 get_positions	src/mesh/mod.rs	/^    fn get_positions(&self) -> Vec<(f32, f32, f32)> {$/;"	P	implementation:VertexBuffers
 id	src/lib.rs	/^    id: usize,$/;"	m	struct:Object
 id	src/py_ffi.rs	/^    id: usize,$/;"	m	struct:PObject
@@ -2620,7 +2622,7 @@ local	target/release/.fingerprint/unindent-ddc29b04486057f5/lib-unindent-ddc29b0
 local	target/release/.fingerprint/version_check-53655ccca945868a/lib-version_check-53655ccca945868a.json	/^{"rustc":14430435785226794805,"features":"[]","target":17770025325599730835,"profile":2574335274/;"	a
 mat44	src/skeleton/read.rs	/^fn mat44(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], RowMatrix4<f32>> {$/;"	f
 mat_uv_indicies	src/mesh/mod.rs	/^    pub mat_uv_indicies: [u8; 8], \/\/originally bool$/;"	m	struct:SubMesh
-mat_uv_indicies	src/mesh/py_ffi.rs	/^    pub mat_uv_indicies: Vec<usize>, \/\/originally bool$/;"	m	struct:PySubMesh
+mat_uv_indicies	src/mesh/py_ffi.rs	/^    pub mat_uv_indicies: [u8; 8], \/\/originally bool$/;"	m	struct:PySubMesh
 material_index	src/mesh/mod.rs	/^    pub material_index: usize,       \/\/originally u32$/;"	m	struct:SubMesh
 material_index	src/mesh/py_ffi.rs	/^    pub material_index: usize,       \/\/originally u32$/;"	m	struct:PySubMesh
 materials	src/lib.rs	/^    materials: Vec<Material>,$/;"	m	struct:Object
