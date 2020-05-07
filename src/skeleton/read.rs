@@ -21,7 +21,7 @@ impl<'b, 'a: 'b> Skeleton<'a> {
             let (i, id_offset) = u32_usize(endian)(i)?;
             let (i, transform_offset) = u32_usize(endian)(i)?;
             let (i, name_offset) = u32_usize(endian)(i)?;
-            let (i, exp_block_ptr) = u32_usize(endian)(i)?;
+            let (i, _exp_block_ptr) = u32_usize(endian)(i)?;
             let (i, bone_cnt) = u32_usize(endian)(i)?;
             let (i, parent_offset) = u32_usize(endian)(i)?;
 

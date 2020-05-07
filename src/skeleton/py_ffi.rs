@@ -1,5 +1,5 @@
 use super::*;
-use pyo3::{prelude::*, wrap_pyfunction};
+use pyo3::{prelude::*};
 
 #[pyclass(module = "objset")]
 #[derive(Debug, Default, PartialEq, Clone)]

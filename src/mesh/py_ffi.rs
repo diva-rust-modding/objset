@@ -1,5 +1,5 @@
 #[cfg(feature="pyo3")]
-use pyo3::{prelude::*, wrap_pyfunction, *};
+use pyo3::{prelude::*, *};
 
 use super::*;
 
@@ -87,7 +87,7 @@ impl From<VertexBuffers> for PVertexBuffers {
 
 impl From<Mesh<'_>> for PyMesh {
     fn from(mesh: Mesh<'_>) -> Self {
-        let Mesh { vertex_buffers, name, submeshes, bounding_sphere } = mesh;
+        let Mesh { vertex_buffers, name, submeshes, bounding_sphere: _ } = mesh;
         let name = name.into();
         let vertex_buffers = vertex_buffers.into();
         let submeshes = submeshes.into_iter().map(Into::into).collect();

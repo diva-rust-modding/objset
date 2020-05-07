@@ -1,5 +1,5 @@
 #[cfg(feature="pyo3")]
-use pyo3::{prelude::*, wrap_pyfunction, *};
+use pyo3::{prelude::*, *};
 
 use crate::bounding::*;
 use crate::primitive::*;
