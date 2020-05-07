@@ -1,5 +1,5 @@
 #[cfg(feature = "pyo3")]
-use pyo3::{prelude::*, wrap_pyfunction};
+use pyo3::{prelude::*};
 
 use nom::bytes::complete::take;
 use nom::combinator::map;
@@ -242,14 +242,14 @@ impl SubMesh {
     ) -> impl Fn(&'b [u8]) -> IResult<&'b [u8], Self> {
         move |i: &'b [u8]| {
             let cto = |f| count_then_offset(i0, u32_usize(endian), f);
-            let (i, unused_flags) = u32(endian)(i)?;
+            let (i, _unused_flags) = u32(endian)(i)?;
             let (i, bounding_sphere) = BoundingSphere::parse(i, endian)?;
             let (i, material_index) = u32_usize(endian)(i)?;
             let mut mat_uv_indicies = [0; 8];
             mat_uv_indicies.copy_from_slice(&i[..8]);
             let i = &i[8..];
             let (i, bone_indicies) = cto(u32_usize(endian))(i)?;
-            let (i, bones_per_vertex) = u32_usize(endian)(i)?;
+            let (i, _bones_per_vertex) = u32_usize(endian)(i)?;
             let (i, primitive_type) = PrimitiveType::parse(endian)(i)?;
             let primitive_type = primitive_type.expect("Unexpected primitive type found");
             let (i, index_format) = IndexType::parse(endian)(i)?;
@@ -260,10 +260,10 @@ impl SubMesh {
                 Primitives::parse(index_format, primitive_type, index_cnt, endian),
                 endian,
             )(i)?;
-            let (i, flags) = u32(endian)(i)?;
+            let (i, _flags) = u32(endian)(i)?;
             //skip the reserved data
             let i = &i[6 * 4..];
-            let (i, index_offset) = u32_usize(endian)(i)?;
+            let (i, _index_offset) = u32_usize(endian)(i)?;
             Ok((
                 i,
                 Self {
