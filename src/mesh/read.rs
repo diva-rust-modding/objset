@@ -1,5 +1,5 @@
 #[cfg(feature = "pyo3")]
-use pyo3::{prelude::*};
+use pyo3::prelude::*;
 
 use nom::bytes::complete::take;
 use nom::combinator::map;
@@ -13,6 +13,7 @@ use nom_ext::*;
 use std::convert::TryFrom;
 
 use super::*;
+use crate::read::*;
 
 use modular_bitfield::prelude::*;
 #[bitfield]
@@ -217,8 +218,7 @@ impl<'b> Mesh<'b> {
             let (i, offsets) = MeshInfoOffsets::parse(endian)(i)?;
             let (_, vertex_buffers) = VertexBuffers::parse(vert_count, offsets, endian)(i0)?;
             let i = &i[4..];
-            let (i, name) = map(take_till(|c| c == 0), String::from_utf8_lossy)(i)?;
-            let i = &i[64 - name.len()..];
+            let (i, name) = string64(i)?;
             println!("{}", name);
             // println!("vert {} normals {} tangents {}", vertex_buffers.positions.len(), vertex_buffers.normals.len(), vertex_buffers.tangents.len());
             // println!("first vert {:?}", vertex_buffers.positions[0]);
@@ -240,6 +240,7 @@ impl SubMesh {
         i0: &'a [u8],
         endian: Endianness,
     ) -> impl Fn(&'b [u8]) -> IResult<&'b [u8], Self> {
+        use nom::sequence::tuple;
         move |i: &'b [u8]| {
             let cto = |f| count_then_offset(i0, u32_usize(endian), f);
             let (i, _unused_flags) = u32(endian)(i)?;
@@ -250,16 +251,18 @@ impl SubMesh {
             let i = &i[8..];
             let (i, bone_indicies) = cto(u32_usize(endian))(i)?;
             let (i, _bones_per_vertex) = u32_usize(endian)(i)?;
-            let (i, primitive_type) = PrimitiveType::parse(endian)(i)?;
-            let primitive_type = primitive_type.expect("Unexpected primitive type found");
+            let (i, primitive) = PrimitiveType::parse(endian)(i)?;
+            let primitive = primitive.expect("Unexpected primitive type found");
             let (i, index_format) = IndexType::parse(endian)(i)?;
             let index_format = index_format.expect("Unexpected index format found");
-            let (i, index_cnt) = u32_usize(endian)(i)?;
-            let (i, indicies) = offset_then(
-                i0,
-                Primitives::parse(index_format, primitive_type, index_cnt, endian),
-                endian,
-            )(i)?;
+            println!("{:?}", index_format);
+            // let (i, index_cnt) = u32_usize(endian)(i)?;
+            // let (i, indicies) = offset_then(
+            //     i0,
+            //     Primitives::parse(index_format, primitive_type, index_cnt, endian),
+            //     endian,
+            // )(i)?;
+            let (i, indicies) = count_then_offset(i0, u32_usize(endian), usize(u16(endian)))(i)?;
             let (i, _flags) = u32(endian)(i)?;
             //skip the reserved data
             let i = &i[6 * 4..];
@@ -268,6 +271,7 @@ impl SubMesh {
                 i,
                 Self {
                     bounding_sphere,
+                    primitive,
                     indicies,
                     bone_indicies,
                     material_index,
@@ -336,9 +340,7 @@ mod tests {
         assert_eq!(submesh.material_index, 4);
         assert_eq!(submesh.mat_uv_indicies, [0; 8]);
         assert_eq!(submesh.bone_indicies, &[0]);
-        assert_eq!(
-            PrimitiveType::from(submesh.indicies),
-            PrimitiveType::TriangleStrip
-        );
+        assert_eq!(submesh.primitive, PrimitiveType::TriangleStrip);
+        assert_eq!(submesh.indicies[0], 0);
     }
 }

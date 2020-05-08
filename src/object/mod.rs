@@ -1,6 +1,7 @@
 use super::*;
 
 use crate::bounding::BoundingSphere;
+use crate::material::*;
 use crate::mesh::*;
 use crate::skeleton::*;
 
@@ -10,22 +11,20 @@ mod read;
 
 #[derive(Debug, Default)]
 pub struct Object<'a> {
-    id: usize,
-    name: Cow<'a, str>,
-    materials: Vec<Material>,
-    meshes: Vec<Mesh<'a>>,
-    skin: Skin,
-    bounding_sphere: BoundingSphere,
+    pub id: usize,
+    pub name: Cow<'a, str>,
+    pub materials: Vec<Material>,
+    pub meshes: Vec<Mesh<'a>>,
+    pub skin: Skin,
+    pub bounding_sphere: BoundingSphere,
+    pub skeleton: Option<Skeleton<'a>>,
 }
 
 #[derive(Debug, Default)]
 pub struct ObjectSet<'a> {
-    objects: Vec<Object<'a>>,
-    skeletons: Vec<Skeleton<'a>>,
-    tex_ids: Vec<usize>,
+    pub objects: Vec<Object<'a>>,
+    pub tex_ids: Vec<usize>,
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct Material();
 #[derive(Debug, Default, Clone)]
 pub struct Skin();

@@ -9,6 +9,7 @@ pub mod object;
 pub mod primitive;
 #[cfg(feature = "pyo3")]
 mod py_ffi;
+pub(crate) mod read;
 pub mod skeleton;
 
 pub(crate) type Vec2 = mint::Vector2<f32>;

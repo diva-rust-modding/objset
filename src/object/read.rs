@@ -16,11 +16,14 @@ impl<'a> Object<'a> {
             let i = &i[4..];
             let (i, bounding_sphere) = BoundingSphere::parse(i, endian)?;
             let (i, meshes) = cto(Mesh::parse(i0, endian))(i)?;
+            let (i, materials) =
+                count_then_offset(i0, u32_usize(endian), Material::parse(endian))(i)?;
             Ok((
                 i,
                 Self {
                     meshes,
                     bounding_sphere,
+                    materials,
                     ..Default::default()
                 },
             ))
@@ -33,6 +36,7 @@ impl<'a> ObjectSet<'a> {
         use nom::bytes::complete::take_until;
         use nom::combinator::map;
         use nom::multi::count;
+        use nom::combinator::opt;
         use nom_ext::*;
         move |i0: &'a [u8]| {
             let cstr = map(take_until("\0"), String::from_utf8_lossy);
@@ -64,7 +68,7 @@ impl<'a> ObjectSet<'a> {
             let (_, skeletons) = at_offset(
                 skel_tbl_ptr,
                 count(
-                    offset_then(i0, Skeleton::parse(i0, endian), endian),
+                    opt(offset_then(i0, Skeleton::parse(i0, endian), endian)),
                     object_cnt,
                 ),
             )(i0)?;
@@ -72,22 +76,24 @@ impl<'a> ObjectSet<'a> {
             let (_, obj_id) = at_offset(obj_id_ptr, count(u32_usize(endian), object_cnt))(i0)?;
             let (_, tex_ids) = at_offset(tex_id_ptr, count(u32_usize(endian), tex_id_cnt))(i0)?;
 
-            for ((obj, name), id) in objects
+            for (((obj, name), id), skeleton) in objects
                 .iter_mut()
                 .zip(obj_names.into_iter())
                 .zip(obj_id.into_iter())
+                .zip(skeletons.into_iter())
             {
                 println!("{}: {}", id, name);
                 obj.name = name;
                 obj.id = id;
+                obj.skeleton = skeleton;
             }
 
             Ok((
                 i,
                 Self {
                     objects,
-                    skeletons,
                     tex_ids,
+                    ..Default::default()
                 },
             ))
         }
@@ -103,6 +109,7 @@ mod tests {
 
     const INPUT: &[u8] = include_bytes!("../../assets/mikitm030_obj.bin");
     const RININPUT: &[u8] = include_bytes!("../../assets/rinitm001_obj.bin");
+    const STGINPUT: &[u8] = include_bytes!("../../assets/stgns001_obj.bin");
     const OBJECT: usize = 0x580;
 
     #[test]
@@ -113,9 +120,13 @@ mod tests {
     }
     #[test]
     fn rin_objectset_read() {
-        let _objset = ObjectSet::parse(Endianness::Little)(RININPUT);
-        todo!()
-        // let (_, objset) = ObjectSet::parse(Endianness::Little)(INPUT).unwrap();
+        let (_, objset) = ObjectSet::parse(Endianness::Little)(RININPUT).unwrap();
+        assert_eq!(objset.objects.len(), 1);
+    }
+    #[test]
+    fn stg_objectset_read() {
+        let objset = ObjectSet::parse(Endianness::Little)(STGINPUT).unwrap();
+        // todo!()
         // assert_eq!(objset.objects.len(), 1);
     }
 
