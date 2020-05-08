@@ -1,4 +1,4 @@
-#[cfg(feature="pyo3")]
+#[cfg(feature = "pyo3")]
 use pyo3::{prelude::*, *};
 
 use super::*;
@@ -43,16 +43,16 @@ pub struct PyMesh {
     pub name: String,
 }
 
-#[cfg_attr(feature="pyo3", pyclass(module = "objset"))]
+#[cfg_attr(feature = "pyo3", pyclass(module = "objset"))]
 #[derive(Debug, Default, Clone)]
 pub struct PySubMesh {
     pub bounding_sphere: BoundingSphere,
     #[pyo3(get, set)]
     pub indicies: Vec<Index>,
     #[pyo3(get, set)]
-    pub bone_indicies: Vec<usize>,   //originally u16
+    pub bone_indicies: Vec<usize>, //originally u16
     #[pyo3(get, set)]
-    pub material_index: usize,       //originally u32
+    pub material_index: usize, //originally u32
     #[pyo3(get, set)]
     pub mat_uv_indicies: [u8; 8], //originally bool
 }
@@ -60,7 +60,10 @@ pub struct PySubMesh {
 #[pymethods]
 impl PyMesh {
     fn get_mesh_indicies(&self) -> Vec<Index> {
-        self.submeshes.iter().flat_map(|x| x.indicies.clone()).collect()
+        self.submeshes
+            .iter()
+            .flat_map(|x| x.indicies.clone())
+            .collect()
     }
 }
 
@@ -81,38 +84,72 @@ impl From<VertexBuffers> for PVertexBuffers {
         let color2 = v4(vbo.color2);
         let bone_weights = v4(vbo.bone_weights);
         let bone_indicies = v4(vbo.bone_indicies);
-        Self { positions, normals, tangents, uv1, uv2, uv3, uv4, color1, color2, bone_weights, bone_indicies }
+        Self {
+            positions,
+            normals,
+            tangents,
+            uv1,
+            uv2,
+            uv3,
+            uv4,
+            color1,
+            color2,
+            bone_weights,
+            bone_indicies,
+        }
     }
 }
 
 impl From<Mesh<'_>> for PyMesh {
     fn from(mesh: Mesh<'_>) -> Self {
-        let Mesh { vertex_buffers, name, submeshes, bounding_sphere: _ } = mesh;
+        let Mesh {
+            vertex_buffers,
+            name,
+            submeshes,
+            bounding_sphere: _,
+        } = mesh;
         let name = name.into();
         let vertex_buffers = vertex_buffers.into();
         let submeshes = submeshes.into_iter().map(Into::into).collect();
-        Self { name, vertex_buffers, submeshes }
+        Self {
+            name,
+            vertex_buffers,
+            submeshes,
+        }
     }
 }
 
 impl From<SubMesh> for PySubMesh {
     fn from(submesh: SubMesh) -> Self {
-        let SubMesh { bounding_sphere, indicies, bone_indicies, mat_uv_indicies, material_index } = submesh;
-        let  indicies = match indicies {
-            Primitives::Triangles(v) => v.into_iter().map(|v| (v.x, v.y, v.z)).collect(),
-            Primitives::TriangleStrips(v) => {
-                let tristrips = v.into_iter().map(|v| (v.x, v.y, v.z)).collect();
-                tristrips_to_tris(tristrips)
+        let SubMesh {
+            bounding_sphere,
+            primitive,
+            indicies,
+            bone_indicies,
+            mat_uv_indicies,
+            material_index,
+        } = submesh;
+        use PrimitiveType::*;
+        let indicies = match primitive {
+            Triangle => indicies.chunks(3).map(|x| (x[0], x[1], x[2])).collect(),
+            TriangleStrip => {
+                tristrips_to_tris(indicies)
                 // tris.into_iter().flat_map(|(a, b, c)| vec![a, b, c]).collect()
             }
-            _ => todo!()
+            _ => todo!(),
         };
-        Self { bounding_sphere, bone_indicies, material_index, mat_uv_indicies, indicies }
+        Self {
+            bounding_sphere,
+            bone_indicies,
+            material_index,
+            mat_uv_indicies,
+            indicies,
+        }
     }
 }
 
-fn tristrips_to_tris(idx: Vec<Index>) -> Vec<Index> {
-    let idx: Vec<usize> = idx.iter().flat_map(|x| vec![x.0, x.1, x.2]).collect();
+fn tristrips_to_tris(idx: Vec<usize>) -> Vec<Index> {
+    // let idx: Vec<usize> = idx.flat_map(|[a, b, c]| vec![a, b, c]).collect();
     let mut vec: Vec<Index> = vec![];
     let mut dir = -1;
     let (mut a, mut b, mut c) = (0, 0, 0);
@@ -146,6 +183,30 @@ fn tristrips_to_tris(idx: Vec<Index>) -> Vec<Index> {
     vec
 }
 
+// use std::slice::Windows;
+// fn strips_to_tris<'a>(idx: Windows<'a, usize>) -> Vec<Index> {
+//     idx.filter(|[_, _, c]| *c != 0xFFFF)
+//         .scan(-1, |mut dir, [a, b, c]| {
+//             *dir *= -1;
+//             // if a != b && b != c && a != c {
+//             //     if dir > 0 {
+//             //         Some([a, b, c])
+//             //     } else {
+//             //         Some([a, c, b])
+//             //     }
+//             // }
+//             let a = if a0 == 0 { a } else { a0 };
+//             let b = if a0 == 0 { a } else { a0 };
+//             if *dir > 0 {
+//                 Some([a, b, c])
+//             } else {
+//                 Some([a, c, b])
+//             }
+//             a0 = b;
+//             b0 = c;
+//         })
+//         .collect()
+// }
 
 // fn create_pymesh(mesh: Mesh<'_>) -> PyMesh {
 //     let index = match &mesh.submeshes[0].indicies {
@@ -156,4 +217,4 @@ fn tristrips_to_tris(idx: Vec<Index>) -> Vec<Index> {
 //     let index = tristrips_to_tris(index);
 //     // (mesh.vertex_buffers.into(), index)
 //     PyMesh { vertex_buffers:  mesh.vertex_buffers.into(), name: mesh.name.into(), triangles: index}
-// } 
+// }
