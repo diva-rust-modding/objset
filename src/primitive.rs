@@ -1,6 +1,4 @@
-#[cfg(feature="pyo3")]
-
-
+#[cfg(feature = "pyo3")]
 use nom::combinator::map;
 use nom::multi::count;
 use nom::number::Endianness;
@@ -11,7 +9,7 @@ use num_derive::*;
 #[derive(Debug, PartialEq, PartialOrd, FromPrimitive, ToPrimitive, Copy, Clone)]
 pub enum PrimitiveType {
     Point,         //0,
-    Line,         //1,
+    Line,          //1,
     LineStrip,     //2,
     LineLoop,      //3,
     Triangle,      //4,
@@ -31,6 +29,12 @@ impl PrimitiveType {
             let val = Self::from_u32(val);
             Ok((i, val))
         }
+    }
+}
+
+impl Default for PrimitiveType {
+    fn default() -> Self {
+        Self::Triangle
     }
 }
 
@@ -92,11 +96,11 @@ fn parse_vector3(
 
 impl From<Primitives> for PrimitiveType {
     fn from(primitives: Primitives) -> Self {
-        use Primitives::*;
         use PrimitiveType::*;
+        use Primitives::*;
         match primitives {
             Points => Point,
-            Lines(_)=> Line,
+            Lines(_) => Line,
             LineStrips(_) => LineStrip,
             LineLoops => LineLoop,
             Triangles(_) => Triangle,
@@ -116,6 +120,7 @@ impl Primitives {
         cnt: usize,
         endian: Endianness,
     ) -> impl Fn(&[u8]) -> IResult<&[u8], Self> {
+        use nom::combinator::map;
         use PrimitiveType::*;
         move |i: &[u8]| {
             let vec3 = count(parse_vector3(idx_ty, endian), cnt / 3);
