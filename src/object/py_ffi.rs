@@ -1,7 +1,8 @@
 use pyo3::prelude::*;
 
-use crate::mesh::{py_ffi::*};
-use crate::skeleton::{py_ffi::*};
+use crate::mesh::py_ffi::*;
+use crate::material::py_ffi::*;
+use crate::skeleton::py_ffi::*;
 
 use super::*;
 
@@ -12,10 +13,12 @@ pub struct PObject {
     pub id: usize,
     #[pyo3(get, set)]
     pub name: String,
-    // #[pyo3(get, set)]
-    pub materials: Vec<Material>,
+    #[pyo3(get, set)]
+    pub materials: Vec<PyMaterial>,
     #[pyo3(get, set)]
     pub meshes: Vec<PyMesh>,
+    #[pyo3(get, set)]
+    pub skeleton: Option<PySkeleton>,
     // #[pyo3(get, set)]
     pub skin: Skin,
     // #[pyo3(get, set)]
@@ -28,8 +31,6 @@ pub struct PyObjectSet {
     #[pyo3(get, set)]
     pub objects: Vec<PObject>,
     #[pyo3(get, set)]
-    pub skeletons: Vec<PySkeleton>,
-    #[pyo3(get, set)]
     pub tex_ids: Vec<usize>,
 }
 
@@ -41,10 +42,13 @@ impl From<Object<'_>> for PObject {
             id,
             materials,
             skin,
+            skeleton,
             bounding_sphere,
         } = obj;
         let name = name.into();
         let meshes = meshes.into_iter().map(Into::into).collect();
+        let skeleton = skeleton.map(|s| PySkeleton::from(s));
+        let materials = materials.into_iter().map(Into::into).collect();
         Self {
             name,
             id,
@@ -52,6 +56,7 @@ impl From<Object<'_>> for PObject {
             meshes,
             skin,
             bounding_sphere,
+            skeleton,
         }
     }
 }
@@ -60,14 +65,11 @@ impl From<ObjectSet<'_>> for PyObjectSet {
     fn from(objset: ObjectSet<'_>) -> Self {
         let ObjectSet {
             objects,
-            skeletons,
             tex_ids,
         } = objset;
         let objects = objects.into_iter().map(Into::into).collect();
-        let skeletons = skeletons.into_iter().map(Into::into).collect();
-        Self {
+         Self {
             objects,
-            skeletons,
             tex_ids,
         }
     }
