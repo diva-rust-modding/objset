@@ -48,10 +48,11 @@ impl<'b, 'a: 'b> Skeleton<'a> {
                 .zip(names.into_iter())
                 .zip(parents.into_iter())
                 .map(|(((id, transform), name), parent)| Bone {
-                    id,
+                    id: id & (EXDATA_ID - 1),
                     inverse_bind_pose: transform,
                     name,
-                    parent,
+                    exdata: if id & EXDATA_ID != 0 { Some(()) } else { None },
+                    parent: parent.map(|x| x & (EXDATA_ID - 1)),
                 })
                 .collect();
             Ok((i, Self { bones }))
@@ -118,6 +119,7 @@ mod tests {
         name: Cow::Borrowed("j_kao_wj"),
         inverse_bind_pose: TRANS,
         id: 10,
+        exdata: None,
         parent: Some(7),
     };
 

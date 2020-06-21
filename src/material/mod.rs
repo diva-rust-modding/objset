@@ -1,6 +1,6 @@
 use mint;
 
-#[cfg(feature="pyo3")]
+#[cfg(feature = "pyo3")]
 pub(crate) mod py_ffi;
 mod read;
 pub mod shader;

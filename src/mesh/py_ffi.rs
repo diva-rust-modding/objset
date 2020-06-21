@@ -25,12 +25,23 @@ pub struct PVertexBuffers {
     #[pyo3(get, set)]
     pub color2: Vec<(f32, f32, f32, f32)>,
     #[pyo3(get, set)]
-    pub bone_weights: Vec<(f32, f32, f32, f32)>,
-    #[pyo3(get, set)]
-    pub bone_indicies: Vec<(f32, f32, f32, f32)>,
+    pub weights: Vec<PyBoneWeights>,
 }
 
 pub type Index = (usize, usize, usize);
+
+#[pyclass(module = "objset")]
+#[derive(Debug, Default, Clone)]
+pub struct PyBoneWeights {
+    #[pyo3(get, set)]
+    first: BoneWeight,
+    #[pyo3(get, set)]
+    second: BoneWeight,
+    #[pyo3(get, set)]
+    third: BoneWeight,
+    #[pyo3(get, set)]
+    fourth: BoneWeight,
+}
 
 #[pyclass(module = "objset")]
 #[derive(Debug, Default, Clone)]
@@ -65,6 +76,103 @@ impl PyMesh {
             .flat_map(|x| x.indicies.clone())
             .collect()
     }
+    fn get_submesh_ranges(&self) -> Vec<(usize, usize)> {
+        self.submeshes
+            .iter()
+            .map(|x| x.indicies.len())
+            .scan(0, |state, x| {
+                let range = (*state, x);
+                *state = x;
+                Some(range)
+            })
+            .collect()
+    }
+    fn get_submesh_vbo(&self, submesh: PySubMesh) -> Option<SubMeshVBO> {
+        let set = submesh.get_unqiue_indicies();
+        let start = *set.first()?;
+        let end = start + *set.last()?;
+        let PVertexBuffers {
+            positions,
+            normals,
+            tangents,
+            uv1,
+            uv2,
+            uv3,
+            uv4,
+            color1,
+            color2,
+            weights,
+        } = &self.vertex_buffers;
+
+        let positions = positions
+            .get(start..end)
+            .map(|x| x.to_vec())
+            .unwrap_or_default();
+        let normals = normals
+            .get(start..end)
+            .map(|x| x.to_vec())
+            .unwrap_or_default();
+        let tangents = tangents
+            .get(start..end)
+            .map(|x| x.to_vec())
+            .unwrap_or_default();
+        let uv1 = uv1.get(start..end).map(|x| x.to_vec()).unwrap_or_default();
+        let uv2 = uv2.get(start..end).map(|x| x.to_vec()).unwrap_or_default();
+        let uv3 = uv3.get(start..end).map(|x| x.to_vec()).unwrap_or_default();
+        let uv4 = uv4.get(start..end).map(|x| x.to_vec()).unwrap_or_default();
+        let color1 = color1
+            .get(start..end)
+            .map(|x| x.to_vec())
+            .unwrap_or_default();
+        let color2 = color2
+            .get(start..end)
+            .map(|x| x.to_vec())
+            .unwrap_or_default();
+        let weights = weights
+            .get(start..end)
+            .map(|x| x.to_vec())
+            .unwrap_or_default();
+
+        Some(SubMeshVBO {
+            start,
+            end,
+            vbo: PVertexBuffers {
+                positions,
+                normals,
+                tangents,
+                uv1,
+                uv2,
+                uv3,
+                uv4,
+                color1,
+                color2,
+                weights,
+            },
+        })
+    }
+}
+
+use std::collections::BTreeSet;
+
+#[cfg_attr(feature = "pyo3", pyclass(module = "objset"))]
+#[derive(Debug, Default, Clone)]
+pub struct SubMeshVBO {
+    #[pyo3(get, set)]
+    start: usize,
+    #[pyo3(get, set)]
+    end: usize,
+    #[pyo3(get, set)]
+    vbo: PVertexBuffers,
+}
+
+impl PySubMesh {
+    fn get_unqiue_indicies(&self) -> BTreeSet<usize> {
+        self.indicies
+            .iter()
+            .flat_map(|(x, y, z)| vec![x, y, z])
+            .cloned()
+            .collect()
+    }
 }
 
 impl From<VertexBuffers> for PVertexBuffers {
@@ -82,8 +190,7 @@ impl From<VertexBuffers> for PVertexBuffers {
         let uv4 = v2(vbo.uv4);
         let color1 = v4(vbo.color1);
         let color2 = v4(vbo.color2);
-        let bone_weights = v4(vbo.bone_weights);
-        let bone_indicies = v4(vbo.bone_indicies);
+        let weights = vbo.weights.into_iter().map(Into::into).collect();
         Self {
             positions,
             normals,
@@ -94,8 +201,19 @@ impl From<VertexBuffers> for PVertexBuffers {
             uv4,
             color1,
             color2,
-            bone_weights,
-            bone_indicies,
+            weights,
+        }
+    }
+}
+
+impl From<BoneWeights> for PyBoneWeights {
+    fn from(weights: BoneWeights) -> Self {
+        let [first, second, third, fourth] = weights.0;
+        Self {
+            first,
+            second,
+            third,
+            fourth,
         }
     }
 }

@@ -1,6 +1,7 @@
 use nom::number::Endianness;
 use pyo3::{prelude::*, wrap_pyfunction};
 
+use crate::material::py_ffi::*;
 use crate::mesh::py_ffi::*;
 use crate::mesh::*;
 use crate::object::py_ffi::*;
@@ -35,6 +36,7 @@ fn objset(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_class::<PySkeleton>()?;
     m.add_class::<PyBone>()?;
     m.add_class::<PyMesh>()?;
+    m.add_class::<PyMaterial>()?;
     m.add_class::<SubMesh>()?;
     m.add_class::<VertexBuffers>()?;
 

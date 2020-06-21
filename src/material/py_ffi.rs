@@ -19,6 +19,6 @@ pub struct PyMaterial {
 impl From<Material> for PyMaterial {
     fn from(mat: Material) -> Self {
         let Material { name, bump_depth } = mat;
-        Self {name, bump_depth}
+        Self { name, bump_depth }
     }
 }

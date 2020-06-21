@@ -1,8 +1,11 @@
 use pyo3::prelude::*;
+use pyo3::wrap_pyfunction;
 
-use crate::mesh::py_ffi::*;
 use crate::material::py_ffi::*;
+use crate::mesh::py_ffi::*;
 use crate::skeleton::py_ffi::*;
+
+use std::fs::File;
 
 use super::*;
 
@@ -63,14 +66,27 @@ impl From<Object<'_>> for PObject {
 
 impl From<ObjectSet<'_>> for PyObjectSet {
     fn from(objset: ObjectSet<'_>) -> Self {
-        let ObjectSet {
-            objects,
-            tex_ids,
-        } = objset;
+        let ObjectSet { objects, tex_ids } = objset;
         let objects = objects.into_iter().map(Into::into).collect();
-         Self {
-            objects,
-            tex_ids,
-        }
+        Self { objects, tex_ids }
     }
 }
+
+// #[pyfunction]
+// fn read_db(path: String) -> PyResult<PyObjectSet> {
+//     let mut file = File::open(path)?;
+//     let mut input = vec![];
+//     file.read_to_end(&mut input);
+//     let (_, bone_db) = BoneDatabase::read(input).unwrap();
+//     Ok(bone_db.into())
+// }
+
+// #[pymodule]
+// fn bones(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+//     m.add_wrapped(wrap_pyfunction!(read_db))?;
+//     m.add_class::<PyBoneDatabase>()?;
+//     m.add_class::<PySkeleton>()?;
+//     m.add_class::<PyBone>()?;
+
+//     Ok(())
+// }

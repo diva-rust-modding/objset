@@ -135,6 +135,16 @@ fn vec4(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], Vec4> {
     }
 }
 
+fn vec4i(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], mint::Vector4<usize>> {
+    use nom::number::complete::{be_f32, le_f32};
+    use nom::sequence::tuple;
+    move |i0: &[u8]| {
+        let f32 = |x| u32_usize(endian)(x);
+        let (i, (x, y, z, w)) = tuple((f32, f32, f32, f32))(i0)?;
+        Ok((i, mint::Vector4 { x, y, z, w }))
+    }
+}
+
 impl VertexBuffers {
     fn parse<'b, 'a: 'b>(
         cnt: usize,
@@ -175,6 +185,34 @@ impl VertexBuffers {
             let color2 = v4(offests.color2)?.1;
             let bone_weights = v4(offests.bone_weights)?.1;
             let bone_indicies = v4(offests.bone_indicies)?.1;
+
+            let id = |x| if x != -1. { Some(x as usize) } else { None };
+
+            let weights = bone_weights
+                .into_iter()
+                .zip(bone_indicies.into_iter())
+                .map(|(w, i)| {
+                    BoneWeights([
+                        BoneWeight {
+                            index: id(i.x),
+                            weight: w.x,
+                        },
+                        BoneWeight {
+                            index: id(i.y),
+                            weight: w.y,
+                        },
+                        BoneWeight {
+                            index: id(i.z),
+                            weight: w.z,
+                        },
+                        BoneWeight {
+                            index: id(i.w),
+                            weight: w.w,
+                        },
+                    ])
+                })
+                .collect();
+
             Ok((
                 i0,
                 Self {
@@ -187,8 +225,7 @@ impl VertexBuffers {
                     uv4,
                     color1,
                     color2,
-                    bone_weights,
-                    bone_indicies,
+                    weights,
                 },
             ))
         }
@@ -249,7 +286,7 @@ impl SubMesh {
             let mut mat_uv_indicies = [0; 8];
             mat_uv_indicies.copy_from_slice(&i[..8]);
             let i = &i[8..];
-            let (i, bone_indicies) = cto(u32_usize(endian))(i)?;
+            let (i, bone_indicies) = cto(usize(u16(endian)))(i)?;
             let (i, _bones_per_vertex) = u32_usize(endian)(i)?;
             let (i, primitive) = PrimitiveType::parse(endian)(i)?;
             let primitive = primitive.expect("Unexpected primitive type found");
