@@ -31,8 +31,19 @@ pub struct VertexBuffers {
     pub uv4: Vec<Vec2>,
     pub color1: Vec<Vec4>,
     pub color2: Vec<Vec4>,
-    pub bone_weights: Vec<Vec4>,
-    pub bone_indicies: Vec<Vec4>,
+    pub weights: Vec<BoneWeights>,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct BoneWeights([BoneWeight; 4]);
+
+#[cfg_attr(feature = "pyo3", pyclass)]
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct BoneWeight {
+    #[pyo3(get, set)]
+    index: Option<usize>,
+    #[pyo3(get, set)]
+    weight: f32,
 }
 
 #[cfg_attr(feature = "pyo3", pymethods)]

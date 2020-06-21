@@ -35,8 +35,8 @@ impl<'a> ObjectSet<'a> {
     pub fn parse(endian: Endianness) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], ObjectSet<'a>> {
         use nom::bytes::complete::take_until;
         use nom::combinator::map;
-        use nom::multi::count;
         use nom::combinator::opt;
+        use nom::multi::count;
         use nom_ext::*;
         move |i0: &'a [u8]| {
             let cstr = map(take_until("\0"), String::from_utf8_lossy);
