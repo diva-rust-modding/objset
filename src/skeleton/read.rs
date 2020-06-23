@@ -48,11 +48,11 @@ impl<'b, 'a: 'b> Skeleton<'a> {
                 .zip(names.into_iter())
                 .zip(parents.into_iter())
                 .map(|(((id, transform), name), parent)| Bone {
-                    id: id & (EXDATA_ID - 1),
+                    id: id,
                     inverse_bind_pose: transform,
                     name,
                     exdata: if id & EXDATA_ID != 0 { Some(()) } else { None },
-                    parent: parent.map(|x| x & (EXDATA_ID - 1)),
+                    parent: parent
                 })
                 .collect();
             Ok((i, Self { bones }))

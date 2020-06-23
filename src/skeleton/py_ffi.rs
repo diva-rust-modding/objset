@@ -54,18 +54,15 @@ impl PySkeleton {
         bone.parent
             .and_then(|b| self.bones.iter().position(|x| x.id == b))
     }
-}
-impl PySkeleton {
-    fn parent(&self, bone: &PyBone) -> Option<&PyBone> {
+    fn parent(&self, bone: &PyBone) -> Option<PyBone> {
         bone.parent
-            .and_then(|b| self.bones.iter().find(|x| x.id == b))
+            .and_then(|b| self.bones.iter().find(|x| x.id == b)).map(|x| x.clone())
     }
 }
 
 impl From<Skeleton<'_>> for PySkeleton {
     fn from(skel: Skeleton<'_>) -> Self {
-        let mut bones: Vec<PyBone> = skel.bones.into_iter().map(Into::into).collect();
-        // bones.sort_by(|x, y| x.parent.cmp(&y.parent));
+        let mut bones = skel.bones.into_iter().map(Into::into).collect();
         Self { bones }
     }
 }
