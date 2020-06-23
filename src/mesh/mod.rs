@@ -40,9 +40,7 @@ pub struct BoneWeights([BoneWeight; 4]);
 #[cfg_attr(feature = "pyo3", pyclass)]
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct BoneWeight {
-    #[pyo3(get, set)]
     index: Option<usize>,
-    #[pyo3(get, set)]
     weight: f32,
 }
 

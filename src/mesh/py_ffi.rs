@@ -28,6 +28,29 @@ pub struct PVertexBuffers {
     pub weights: Vec<PyBoneWeights>,
 }
 
+//workaround cause cfg_attr doesn't work on the getter setter shorthand
+#[pymethods]
+impl BoneWeight {
+    #[getter]
+    fn get_index(&self) -> PyResult<Option<usize>> {
+        Ok(self.index)
+    }
+    #[getter]
+    fn get_weight(&self) -> PyResult<f32> {
+        Ok(self.weight)
+    }
+    #[setter]
+    fn set_index(&mut self, value: Option<usize>) -> PyResult<()> {
+        self.index = value;
+        Ok(())
+    }
+    #[setter]
+    fn set_weight(&mut self, value: f32) -> PyResult<()> {
+        self.weight = value;
+        Ok(())
+    }
+}
+
 pub type Index = (usize, usize, usize);
 
 #[pyclass(module = "objset")]
