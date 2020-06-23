@@ -18,3 +18,9 @@ num-traits = "0.2.12"
 modular-bitfield = "0.6.0"
 pyo3 = { version = "0.10.1", optional = true, features = ["extension-module"] }
 cgmath = { version = "0.17.0", features = ["mint"] }
+
+[target.x86_64-apple-darwin]
+rustflags = [
+  "-C", "link-arg=-undefined",
+  "-C", "link-arg=dynamic_lookup",
+]
