@@ -15,7 +15,7 @@ main() {
             ;;
     esac
 
-    test -f Cargo.lock || cargo generate-lockfile
+    # test -f Cargo.lock || cargo generate-lockfile
 
     cross rustc -features="pyo3" --target $TARGET --release -- -C lto
 
