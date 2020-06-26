@@ -1,10 +1,10 @@
 use super::*;
 
+#[cfg(feature = "pyo3")]
+pub mod py_ffi;
 mod read;
 #[cfg(test)]
 mod test;
-#[cfg(feature="pyo3")]
-pub mod py_ffi;
 
 type Matrix4 = mint::RowMatrix4<f32>;
 
@@ -18,10 +18,10 @@ pub struct Texture {
     coordinate_matrix: Matrix4,
 }
 
-#[cfg(feature="pyo3")]
+#[cfg(feature = "pyo3")]
 use pyo3::prelude::*;
 
-#[cfg_attr(feature="pyo3", pyclass)]
+#[cfg_attr(feature = "pyo3", pyclass)]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct SamplerFlags {
     u_repeat: bool,

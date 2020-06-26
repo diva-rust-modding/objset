@@ -52,7 +52,7 @@ impl<'b, 'a: 'b> Skeleton<'a> {
                     inverse_bind_pose: transform,
                     name,
                     exdata: if id & EXDATA_ID != 0 { Some(()) } else { None },
-                    parent: parent
+                    parent: parent,
                 })
                 .collect();
             Ok((i, Self { bones }))

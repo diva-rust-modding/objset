@@ -52,7 +52,10 @@ impl ShaderType {
             b"STAGE\0\0\0" => Self::Stage,
             b"TIGHTS\0\0" => Self::Tights,
             b"WATER01\0" => Self::Water01,
-            e => unreachable!("Encountered unknown shader type `{}`", String::from_utf8_lossy(e))
+            e => unreachable!(
+                "Encountered unknown shader type `{}`",
+                String::from_utf8_lossy(e)
+            ),
         };
         Ok((i, magic))
     }

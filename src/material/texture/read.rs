@@ -29,20 +29,18 @@ impl Texture {
         let (i, coordinate_matrix) = mat44(Endianness::Little)(i)?;
         let i = &i[4 * 8..];
         if id == 0xFFFFFFFF {
-            return Ok((i, None))
+            return Ok((i, None));
         }
         Ok((
             i,
-            Some(
-            Self {
+            Some(Self {
                 sampler_flags,
                 id,
                 flags,
                 ex_shader,
                 weight,
                 coordinate_matrix,
-            },
-            )
+            }),
         ))
     }
 }
@@ -91,7 +89,10 @@ impl TextureMap {
             7 => Self::Transparency,
             8 => Self::Sphere,
             9 => Self::Cube,
-            e => { println!("UNKNOWN MAP: {}", e); return None }
+            e => {
+                println!("UNKNOWN MAP: {}", e);
+                return None;
+            }
         })
     }
 }

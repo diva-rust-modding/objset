@@ -12,10 +12,30 @@ const INPUT_TEX: &[u8] = &[
 ];
 
 const IDENTITIY: Matrix4 = Matrix4 {
-    x: Vec4 { x: 1., y: 0., z: 0., w: 0. },
-    y: Vec4 { x: 0., y: 1., z: 0., w: 0. },
-    z: Vec4 { x: 0., y: 0., z: 1., w: 0. },
-    w: Vec4 { x: 0., y: 0., z: 0., w: 1. },
+    x: Vec4 {
+        x: 1.,
+        y: 0.,
+        z: 0.,
+        w: 0.,
+    },
+    y: Vec4 {
+        x: 0.,
+        y: 1.,
+        z: 0.,
+        w: 0.,
+    },
+    z: Vec4 {
+        x: 0.,
+        y: 0.,
+        z: 1.,
+        w: 0.,
+    },
+    w: Vec4 {
+        x: 0.,
+        y: 0.,
+        z: 0.,
+        w: 1.,
+    },
 };
 
 #[test]
