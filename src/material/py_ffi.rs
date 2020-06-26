@@ -2,12 +2,16 @@ use pyo3::prelude::*;
 
 use super::*;
 
+use super::texture::py_ffi::*;
+
 #[pyclass(module = "objset")]
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct PyMaterial {
-    // shader: (),
+    #[pyo3(get, set)]
+    pub shader: String,
     // shader_flags: ShaderFlags,
-    // textures: [Option<Texture>; 8],
+    #[pyo3(get, set)]
+    pub textures: Vec<PyTexture>,
     // blend_flags: BlendFlags,
     // colors: Color,
     #[pyo3(get, set)]
@@ -18,7 +22,9 @@ pub struct PyMaterial {
 
 impl From<Material> for PyMaterial {
     fn from(mat: Material) -> Self {
-        let Material { name, bump_depth } = mat;
-        Self { name, bump_depth }
+        let Material { name, bump_depth, textures, shader } = mat;
+        let textures = textures.iter().filter(|x| x.is_some()).cloned().map(|x| x.unwrap().into()).collect();
+        let shader = shader.as_str().to_string();
+        Self { name, bump_depth, textures, shader }
     }
 }

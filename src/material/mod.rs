@@ -6,14 +6,33 @@ mod read;
 pub mod shader;
 pub mod texture;
 
+use super::*;
+
 use self::shader::*;
 use self::texture::*;
 
+#[derive(Debug, PartialEq)]
+pub enum ShaderType {
+    Blinn,
+    Chara,
+    Cloth,
+    Eyeball,
+    Floor,
+    Hair,
+    Item,
+    Puddle,
+    Skin,
+    Sky,
+    Stage,
+    Tights,
+    Water01
+}
+
 #[derive(Debug, Default)]
 pub struct Material {
-    // shader: (),
+    shader: ShaderType,
     // shader_flags: ShaderFlags,
-    // textures: [Option<Texture>; 8],
+    textures: [Option<Texture>; 8],
     // blend_flags: BlendFlags,
     // colors: Color,
     pub name: String,
@@ -25,14 +44,18 @@ type Rgba = mint::Vector4<f32>;
 
 #[derive(Debug)]
 pub struct Color {
-    diffuse: Rgb,
-    transparency: f32,
-    ambient: Rgba,
-    specular: Rgb,
-    reflectivity: f32,
-    emission: Rgb,
-    shininess: f32,
-    intensity: f32,
+    pub diffuse: Rgb,
+    pub transparency: f32,
+    pub ambient: Rgba,
+    pub specular: Rgb,
+    ///Controls cubemap reflection
+    ///goes from 0 to 1 
+    pub reflectivity: f32,
+    pub emission: Rgb,
+    ///Controls specular power
+    ///goes from 0 to 128
+    pub shininess: f32,
+    pub intensity: f32,
 }
 
 #[derive(Debug, Default)]
@@ -70,4 +93,30 @@ pub struct BlendFlags {
     z_bias: u8,
     no_fog: bool,
     unk: u8, //2 bit patterns
+}
+
+impl ShaderType {
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Blinn    => "BLINN",
+            Self::Chara    => "CHARA",
+            Self::Cloth    => "CLOTH",
+            Self::Eyeball  => "EYEBALL",
+            Self::Floor    => "FLOOR",
+            Self::Hair     => "HAIR",
+            Self::Item     => "ITEM",
+            Self::Puddle   => "PUDDLE",
+            Self::Skin     => "SKIN",
+            Self::Sky      => "SKY",
+            Self::Stage    => "STAGE",
+            Self::Tights   => "TIGHTS",
+            Self::Water01  => "WATER01",
+        }
+    }
+}
+
+impl Default for ShaderType {
+    fn default() -> Self {
+        Self::Blinn
+    }
 }
