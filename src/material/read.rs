@@ -10,7 +10,12 @@ impl Material {
     pub fn parse(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], Self> {
         move |i: &[u8]| {
             //currently unimplemented
-            let i = &i[0x4B0 - 64 - 4 * 16..];
+            let i = &i[8..];
+            let (i, shader) = ShaderType::parse(i)?;
+            let i = &i[4..];
+            let (i, textures) = Texture::parse_eight(i)?;
+            let i = &i[92..];
+            // let i = &i[0x4B0 - 64 - 4 * 16..];
             let (i, name) = string64(i)?;
             let (i, bump_depth) = f32(endian)(i)?;
             //skip reserved
@@ -18,12 +23,38 @@ impl Material {
             Ok((
                 i,
                 Self {
+                    shader,
                     name: name.into(),
                     bump_depth,
+                    textures,
                     ..Default::default()
                 },
             ))
         }
+    }
+}
+
+impl ShaderType {
+    pub fn parse(i: &[u8]) -> IResult<&[u8], Self> {
+        use nom::bytes::complete::*;
+        let (i, magic) = take(8usize)(i)?;
+        let magic = match magic {
+            b"BLINN\0\0\0" => Self::Blinn,
+            b"CHARA\0\0\0" => Self::Chara,
+            b"CLOTH\0\0\0" => Self::Cloth,
+            b"EYEBALL\0" => Self::Eyeball,
+            b"FLOOR\0\0\0" => Self::Floor,
+            b"HAIR\0\0\0\0" => Self::Hair,
+            b"ITEM\0\0\0\0" => Self::Item,
+            b"PUDDLE\0\0" => Self::Puddle,
+            b"SKIN\0\0\0\0" => Self::Skin,
+            b"SKY\0\0\0\0\0" => Self::Sky,
+            b"STAGE\0\0\0" => Self::Stage,
+            b"TIGHTS\0\0" => Self::Tights,
+            b"WATER01\0" => Self::Water01,
+            e => unreachable!("Encountered unknown shader type `{}`", String::from_utf8_lossy(e))
+        };
+        Ok((i, magic))
     }
 }
 
@@ -85,7 +116,11 @@ mod tests {
         let input = &I[MAT_OFF..];
         println!("{:X?}", &input[0x4B0 - 64 - 4 * 16..0x4B0]);
         let (_, mat) = Material::parse(Endianness::Little)(input).unwrap();
+        println!("{:#X?}", mat.textures);
+        let tex_len = mat.textures.iter().filter(|x| x.is_some()).count();
         assert_eq!(mat.name, "green_light_CH_ITEM_SD008Z");
+        assert_eq!(mat.shader, ShaderType::Item);
+        assert_eq!(tex_len, 1);
         assert_eq!(mat.bump_depth, 1.);
     }
 }
