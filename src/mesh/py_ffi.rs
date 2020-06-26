@@ -79,7 +79,7 @@ pub struct PyMesh {
     pub name: String,
 }
 
-#[cfg_attr(feature = "pyo3", pyclass(module = "objset"))]
+#[pyclass(module = "objset")]
 #[derive(Debug, Default, Clone)]
 pub struct PySubMesh {
     pub bounding_sphere: BoundingSphere,
