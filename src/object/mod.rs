@@ -15,7 +15,6 @@ pub struct Object<'a> {
     pub name: Cow<'a, str>,
     pub materials: Vec<Material>,
     pub meshes: Vec<Mesh<'a>>,
-    pub skin: Skin,
     pub bounding_sphere: BoundingSphere,
     pub skeleton: Option<Skeleton<'a>>,
 }
@@ -25,6 +24,3 @@ pub struct ObjectSet<'a> {
     pub objects: Vec<Object<'a>>,
     pub tex_ids: Vec<usize>,
 }
-
-#[derive(Debug, Default, Clone)]
-pub struct Skin();

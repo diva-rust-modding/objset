@@ -16,7 +16,7 @@ pub struct PyTexture {
     #[pyo3(get, set)]
     ex_shader: [u8; 8], //unknown. Always null
     #[pyo3(get, set)]
-    weight: f32,        //always 1.0
+    weight: f32, //always 1.0
     #[pyo3(get, set)]
     coordinate_matrix: [f32; 16],
 }
@@ -44,20 +44,42 @@ pub struct PyTextureFlags {
 
 impl From<Texture> for PyTexture {
     fn from(tex: Texture) -> Self {
-        let Texture { sampler_flags, id, flags, ex_shader, weight, coordinate_matrix } = tex;
+        let Texture {
+            sampler_flags,
+            id,
+            flags,
+            ex_shader,
+            weight,
+            coordinate_matrix,
+        } = tex;
         let flags = flags.into();
         let coordinate_matrix = coordinate_matrix.into();
-        Self { sampler_flags, id, flags, ex_shader, weight, coordinate_matrix }
+        Self {
+            sampler_flags,
+            id,
+            flags,
+            ex_shader,
+            weight,
+            coordinate_matrix,
+        }
     }
 }
 
 impl From<TextureFlags> for PyTextureFlags {
     fn from(flags: TextureFlags) -> Self {
-        let TextureFlags { map, uv_index, uv_translation } = flags;
+        let TextureFlags {
+            map,
+            uv_index,
+            uv_translation,
+        } = flags;
         let map = map as u8;
         let uv_index = uv_index as u8;
         let uv_translation = uv_translation as u8;
-        Self { map, uv_index, uv_translation }
+        Self {
+            map,
+            uv_index,
+            uv_translation,
+        }
     }
 }
 
@@ -73,6 +95,9 @@ impl<'p> PyObjectProtocol<'p> for PyTexture {
 impl<'p> PyObjectProtocol<'p> for PyTextureFlags {
     fn __repr__(&'p self) -> PyResult<String> {
         let format = TextureMap::from_byte(self.map).unwrap_or(TextureMap::None);
-        Ok(format!("PyTextureFlags: {:?} UV {} {}", format, self.uv_index, self.uv_translation))
+        Ok(format!(
+            "PyTextureFlags: {:?} UV {} {}",
+            format, self.uv_index, self.uv_translation
+        ))
     }
 }

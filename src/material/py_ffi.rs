@@ -1,4 +1,6 @@
 use pyo3::prelude::*;
+use pyo3::PyObjectProtocol;
+use pyo3::PyResult;
 
 use super::*;
 
@@ -22,9 +24,36 @@ pub struct PyMaterial {
 
 impl From<Material> for PyMaterial {
     fn from(mat: Material) -> Self {
-        let Material { name, bump_depth, textures, shader } = mat;
-        let textures = textures.iter().filter(|x| x.is_some()).cloned().map(|x| x.unwrap().into()).collect();
+        let Material {
+            name,
+            bump_depth,
+            textures,
+            shader,
+        } = mat;
+        let textures = textures
+            .iter()
+            .filter(|x| x.is_some())
+            .cloned()
+            .map(|x| x.unwrap().into())
+            .collect();
         let shader = shader.as_str().to_string();
-        Self { name, bump_depth, textures, shader }
+        Self {
+            name,
+            bump_depth,
+            textures,
+            shader,
+        }
+    }
+}
+
+#[pyproto]
+impl<'p> PyObjectProtocol<'p> for PyMaterial {
+    fn __repr__(&'p self) -> PyResult<String> {
+        Ok(format!(
+            "PyMaterial {}: {} {} texture(s)",
+            self.name,
+            self.shader,
+            self.textures.len()
+        ))
     }
 }

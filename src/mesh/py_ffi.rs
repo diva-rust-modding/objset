@@ -1,3 +1,5 @@
+use pyo3::PyObjectProtocol;
+use pyo3::PyResult;
 #[cfg(feature = "pyo3")]
 use pyo3::{prelude::*, *};
 
@@ -324,38 +326,46 @@ fn tristrips_to_tris(idx: Vec<usize>) -> Vec<Index> {
     vec
 }
 
-// use std::slice::Windows;
-// fn strips_to_tris<'a>(idx: Windows<'a, usize>) -> Vec<Index> {
-//     idx.filter(|[_, _, c]| *c != 0xFFFF)
-//         .scan(-1, |mut dir, [a, b, c]| {
-//             *dir *= -1;
-//             // if a != b && b != c && a != c {
-//             //     if dir > 0 {
-//             //         Some([a, b, c])
-//             //     } else {
-//             //         Some([a, c, b])
-//             //     }
-//             // }
-//             let a = if a0 == 0 { a } else { a0 };
-//             let b = if a0 == 0 { a } else { a0 };
-//             if *dir > 0 {
-//                 Some([a, b, c])
-//             } else {
-//                 Some([a, c, b])
-//             }
-//             a0 = b;
-//             b0 = c;
-//         })
-//         .collect()
-// }
-
-// fn create_pymesh(mesh: Mesh<'_>) -> PyMesh {
-//     let index = match &mesh.submeshes[0].indicies {
-//         Primitives::TriangleStrips(v) => v,
-//         _ => todo!()
-//     };
-//     let index = index.iter().map(|v| (v.x, v.y, v.z)).collect();
-//     let index = tristrips_to_tris(index);
-//     // (mesh.vertex_buffers.into(), index)
-//     PyMesh { vertex_buffers:  mesh.vertex_buffers.into(), name: mesh.name.into(), triangles: index}
-// }
+#[pyproto]
+impl<'p> PyObjectProtocol<'p> for PyMesh {
+    fn __repr__(&'p self) -> PyResult<String> {
+        Ok(format!(
+            "PyMesh: {} {} submesh(es)",
+            self.name,
+            self.submeshes.len()
+        ))
+    }
+}
+#[pyproto]
+impl<'p> PyObjectProtocol<'p> for PySubMesh {
+    fn __repr__(&'p self) -> PyResult<String> {
+        Ok(format!(
+            "PySubMesh: {} faces, material id: {}, {} bone(s) rigged",
+            self.indicies.len(),
+            self.material_index,
+            self.bone_indicies.len()
+        ))
+    }
+}
+#[pyproto]
+impl<'p> PyObjectProtocol<'p> for PyBoneWeights {
+    fn __repr__(&'p self) -> PyResult<String> {
+        Ok(format!(
+            "PyBoneWeights <{:?}: {}, {:?}: {}, {:?}: {}, {:?}: {}>",
+            self.first.index,
+            self.first.weight,
+            self.second.index,
+            self.second.weight,
+            self.third.index,
+            self.third.weight,
+            self.fourth.index,
+            self.fourth.weight
+        ))
+    }
+}
+#[pyproto]
+impl<'p> PyObjectProtocol<'p> for BoneWeight {
+    fn __repr__(&'p self) -> PyResult<String> {
+        Ok(format!("BoneWeight {:?}: {}", self.index, self.weight))
+    }
+}

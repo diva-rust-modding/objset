@@ -3,6 +3,8 @@ use cgmath::Matrix4;
 use cgmath::SquareMatrix;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
+use pyo3::PyObjectProtocol;
+use pyo3::PyResult;
 
 #[pyclass]
 #[derive(Debug, Default, PartialEq, Clone)]
@@ -31,9 +33,9 @@ impl PyBone {
         let bone: Bone<'_> = self.clone().into();
         bone.local_bind_pose().into()
     }
-    fn serial_id(&self) -> usize {
+    fn bone_db_id(&self) -> usize {
         match self.exdata {
-            Some(_) => self.id | EXDATA_ID,
+            Some(_) => self.id & (EXDATA_ID - 1),
             None => self.id,
         }
     }
@@ -45,8 +47,8 @@ impl PySkeleton {
         let mut slf = self.clone();
         slf.bones.sort_by(|x, y| {
             self.parent(x)
-                .map(|u| u.serial_id())
-                .cmp(&self.parent(y).map(|u| u.serial_id()))
+                .map(|u| u.id)
+                .cmp(&self.parent(y).map(|u| u.id))
         });
         slf
     }
@@ -56,7 +58,8 @@ impl PySkeleton {
     }
     fn parent(&self, bone: &PyBone) -> Option<PyBone> {
         bone.parent
-            .and_then(|b| self.bones.iter().find(|x| x.id == b)).map(|x| x.clone())
+            .and_then(|b| self.bones.iter().find(|x| x.id == b))
+            .cloned()
     }
 }
 
@@ -111,5 +114,22 @@ impl From<PyBone> for Bone<'_> {
             inverse_bind_pose: inverse_bind_pose.into(),
             exdata,
         }
+    }
+}
+
+#[pyproto]
+impl<'p> PyObjectProtocol<'p> for PySkeleton {
+    fn __repr__(&'p self) -> PyResult<String> {
+        Ok(format!("PySkeleton with {} bone(s)", self.bones.len()))
+    }
+}
+
+#[pyproto]
+impl<'p> PyObjectProtocol<'p> for PyBone {
+    fn __repr__(&'p self) -> PyResult<String> {
+        Ok(format!(
+            "PyBone {}: {} parent_id: {:?}",
+            self.id, self.name, self.parent
+        ))
     }
 }

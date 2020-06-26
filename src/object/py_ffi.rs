@@ -1,5 +1,7 @@
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
+use pyo3::PyObjectProtocol;
+use pyo3::PyResult;
 
 use crate::material::py_ffi::*;
 use crate::mesh::py_ffi::*;
@@ -23,8 +25,6 @@ pub struct PObject {
     #[pyo3(get, set)]
     pub skeleton: Option<PySkeleton>,
     // #[pyo3(get, set)]
-    pub skin: Skin,
-    // #[pyo3(get, set)]
     pub bounding_sphere: BoundingSphere,
 }
 
@@ -44,7 +44,6 @@ impl From<Object<'_>> for PObject {
             meshes,
             id,
             materials,
-            skin,
             skeleton,
             bounding_sphere,
         } = obj;
@@ -57,7 +56,6 @@ impl From<Object<'_>> for PObject {
             id,
             materials,
             meshes,
-            skin,
             bounding_sphere,
             skeleton,
         }
@@ -72,21 +70,31 @@ impl From<ObjectSet<'_>> for PyObjectSet {
     }
 }
 
-// #[pyfunction]
-// fn read_db(path: String) -> PyResult<PyObjectSet> {
-//     let mut file = File::open(path)?;
-//     let mut input = vec![];
-//     file.read_to_end(&mut input);
-//     let (_, bone_db) = BoneDatabase::read(input).unwrap();
-//     Ok(bone_db.into())
-// }
+#[pyproto]
+impl<'p> PyObjectProtocol<'p> for PyObjectSet {
+    fn __repr__(&'p self) -> PyResult<String> {
+        Ok(format!(
+            "PObjectSet: {} object(s), {} texture id(s)",
+            self.objects.len(),
+            self.tex_ids.len()
+        ))
+    }
+}
 
-// #[pymodule]
-// fn bones(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
-//     m.add_wrapped(wrap_pyfunction!(read_db))?;
-//     m.add_class::<PyBoneDatabase>()?;
-//     m.add_class::<PySkeleton>()?;
-//     m.add_class::<PyBone>()?;
-
-//     Ok(())
-// }
+#[pyproto]
+impl<'p> PyObjectProtocol<'p> for PObject {
+    fn __repr__(&'p self) -> PyResult<String> {
+        let skel = match self.skeleton {
+            Some(_) => " has skeleton",
+            None => "",
+        };
+        Ok(format!(
+            "PObject {}: {}{} {} mesh(es) {} mat(s)",
+            self.id,
+            self.name,
+            skel,
+            self.meshes.len(),
+            self.materials.len()
+        ))
+    }
+}

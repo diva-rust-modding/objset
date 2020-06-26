@@ -25,7 +25,7 @@ pub enum ShaderType {
     Sky,
     Stage,
     Tights,
-    Water01
+    Water01,
 }
 
 #[derive(Debug, Default)]
@@ -49,7 +49,7 @@ pub struct Color {
     pub ambient: Rgba,
     pub specular: Rgb,
     ///Controls cubemap reflection
-    ///goes from 0 to 1 
+    ///goes from 0 to 1
     pub reflectivity: f32,
     pub emission: Rgb,
     ///Controls specular power
@@ -98,19 +98,19 @@ pub struct BlendFlags {
 impl ShaderType {
     pub fn as_str(&self) -> &str {
         match self {
-            Self::Blinn    => "BLINN",
-            Self::Chara    => "CHARA",
-            Self::Cloth    => "CLOTH",
-            Self::Eyeball  => "EYEBALL",
-            Self::Floor    => "FLOOR",
-            Self::Hair     => "HAIR",
-            Self::Item     => "ITEM",
-            Self::Puddle   => "PUDDLE",
-            Self::Skin     => "SKIN",
-            Self::Sky      => "SKY",
-            Self::Stage    => "STAGE",
-            Self::Tights   => "TIGHTS",
-            Self::Water01  => "WATER01",
+            Self::Blinn => "BLINN",
+            Self::Chara => "CHARA",
+            Self::Cloth => "CLOTH",
+            Self::Eyeball => "EYEBALL",
+            Self::Floor => "FLOOR",
+            Self::Hair => "HAIR",
+            Self::Item => "ITEM",
+            Self::Puddle => "PUDDLE",
+            Self::Skin => "SKIN",
+            Self::Sky => "SKY",
+            Self::Stage => "STAGE",
+            Self::Tights => "TIGHTS",
+            Self::Water01 => "WATER01",
         }
     }
 }
