@@ -30,21 +30,24 @@ environment:
 install:
   - ps: >-
       If ($env:TARGET -eq 'x86_64-pc-windows-gnu') {
-        $env:PATH += ';C:\msys64\mingw64\bin;'
+        $env:PATH += ';C:\msys64\mingw64\bin'
         $python = python -c "import sys; print(sys.executable)" | Out-String
         $env:PATH += $python
       } ElseIf ($env:TARGET -eq 'i686-pc-windows-gnu') {
-        $env:PATH += ';C:\msys64\mingw32\bin;'
-        $python = python -c "import sys; print(sys.executable)" | Out-String
-        $env:PATH += $python
+        $env:PATH += ';C:\msys64\mingw32\bin'
       }
   - curl -sSf -o rustup-init.exe https://win.rustup.rs/
   - rustup-init.exe -y --default-host %TARGET% --default-toolchain %RUST_VERSION%
   - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
   - rustc -Vv
   - cargo -V
-  - curl -sSf -o python.exe https://www.python.org/ftp/python/3.8.3/python-3.8.3-amd64.exe
-  - python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+  - cinst python
+  - ps: >-
+      $python = python -c "import sys; print(sys.executable)" | Out-String
+      Write-Ouput $python
+      $env:PATH += ";"
+      $env:PATH += $python
+  - set PATH=C:\Users\appveyor\AppData\Local\Programs\Python\Python38\;%PATH%
 
 # TODO This is the "test phase", tweak it as you see fit
 test_script:
