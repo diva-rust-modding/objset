@@ -42,6 +42,7 @@ main() {
            --git japaric/cross \
            --tag $tag \
            --target $target
+    sudo apt-get install python3.8
 }
 
 main
