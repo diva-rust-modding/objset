@@ -39,6 +39,8 @@ install:
   - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
   - rustc -Vv
   - cargo -V
+  - curl -sSf -o python.exe https://www.python.org/ftp/python/3.8.3/python-3.8.3-amd64.exe
+  - python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
 
 # TODO This is the "test phase", tweak it as you see fit
 test_script:
