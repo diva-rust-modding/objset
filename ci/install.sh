@@ -43,6 +43,8 @@ main() {
            --tag $tag \
            --target $target
     sudo apt-get install python3
+    python --version
+    echo $(whereis python)
 }
 
 main
