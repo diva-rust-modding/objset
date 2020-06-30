@@ -17,6 +17,9 @@ main() {
 
     # test -f Cargo.lock || cargo generate-lockfile
 
+    python --version
+    echo $(whereis python)
+
     cross rustc --features="pyo3" --target $TARGET --release -- -C lto
 
     case $TRAVIS_OS_NAME in
