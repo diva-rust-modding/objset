@@ -56,7 +56,7 @@ impl BoneWeight {
 pub type Index = (usize, usize, usize);
 
 #[pyclass(module = "objset")]
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct PyBoneWeights {
     #[pyo3(get, set)]
     first: BoneWeight,
@@ -129,33 +129,55 @@ impl PyMesh {
             weights,
         } = &self.vertex_buffers;
 
-        let positions = positions
-            .get(start..end)
-            .map(|x| x.to_vec())
+        let positions = set
+            .iter()
+            .map(|&x| positions.get(x).cloned())
+            .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
-        let normals = normals
-            .get(start..end)
-            .map(|x| x.to_vec())
+        let normals = set
+            .iter()
+            .map(|&x| normals.get(x).cloned())
+            .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
-        let tangents = tangents
-            .get(start..end)
-            .map(|x| x.to_vec())
+        let tangents = set
+            .iter()
+            .map(|&x| tangents.get(x).cloned())
+            .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
-        let uv1 = uv1.get(start..end).map(|x| x.to_vec()).unwrap_or_default();
-        let uv2 = uv2.get(start..end).map(|x| x.to_vec()).unwrap_or_default();
-        let uv3 = uv3.get(start..end).map(|x| x.to_vec()).unwrap_or_default();
-        let uv4 = uv4.get(start..end).map(|x| x.to_vec()).unwrap_or_default();
-        let color1 = color1
-            .get(start..end)
-            .map(|x| x.to_vec())
+        let uv1 = set
+            .iter()
+            .map(|&x| uv1.get(x).cloned())
+            .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
-        let color2 = color2
-            .get(start..end)
-            .map(|x| x.to_vec())
+        let uv2 = set
+            .iter()
+            .map(|&x| uv2.get(x).cloned())
+            .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
-        let weights = weights
-            .get(start..end)
-            .map(|x| x.to_vec())
+        let uv3 = set
+            .iter()
+            .map(|&x| uv3.get(x).cloned())
+            .collect::<Option<Vec<_>>>()
+            .unwrap_or_default();
+        let uv4 = set
+            .iter()
+            .map(|&x| uv4.get(x).cloned())
+            .collect::<Option<Vec<_>>>()
+            .unwrap_or_default();
+        let color1 = set
+            .iter()
+            .map(|&x| color1.get(x).cloned())
+            .collect::<Option<Vec<_>>>()
+            .unwrap_or_default();
+        let color2 = set
+            .iter()
+            .map(|&x| color2.get(x).cloned())
+            .collect::<Option<Vec<_>>>()
+            .unwrap_or_default();
+        let weights = set
+            .iter()
+            .map(|&x| weights.get(x).cloned())
+            .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
 
         Some(SubMeshVBO {
@@ -190,12 +212,21 @@ pub struct SubMeshVBO {
     vbo: PVertexBuffers,
 }
 
+#[pymethods]
 impl PySubMesh {
     fn get_unqiue_indicies(&self) -> BTreeSet<usize> {
         self.indicies
             .iter()
             .flat_map(|(x, y, z)| vec![x, y, z])
             .cloned()
+            .collect()
+    }
+    fn get_new_indices(&self) -> Vec<Index> {
+        let unique = self.get_unqiue_indicies();
+        let f = |x| unique.iter().position(|y| y == x).unwrap();
+        self.indicies
+            .iter()
+            .map(|(a, b, c)| (f(a), f(b), f(c)))
             .collect()
     }
 }
@@ -276,7 +307,7 @@ impl From<SubMesh> for PySubMesh {
         let indicies = match primitive {
             Triangle => indicies.chunks(3).map(|x| (x[0], x[1], x[2])).collect(),
             TriangleStrip => {
-                tristrips_to_tris(indicies)
+                tristrips(indicies)
                 // tris.into_iter().flat_map(|(a, b, c)| vec![a, b, c]).collect()
             }
             _ => todo!(),
@@ -291,27 +322,15 @@ impl From<SubMesh> for PySubMesh {
     }
 }
 
-fn tristrips_to_tris(idx: Vec<usize>) -> Vec<Index> {
-    // let idx: Vec<usize> = idx.flat_map(|[a, b, c]| vec![a, b, c]).collect();
-    let mut vec: Vec<Index> = vec![];
-    let mut dir = -1;
-    let (mut a, mut b, mut c) = (0, 0, 0);
-    let mut i = 0;
-    a = idx[i];
-    i += 1;
-    b = idx[i];
-    i += 1;
-    while i < idx.len() {
-        c = idx[i];
-        i += 1;
-        if c == 0xFFFF {
-            a = idx[i];
-            i += 1;
-            b = idx[i];
-            i += 1;
-            dir = -1;
-        } else {
-            dir *= -1;
+fn tristrips(idx: Vec<usize>) -> Vec<Index> {
+    let mut vec = vec![];
+    for indices in idx.split(|&x| x == 0xFFFF) {
+        let mut indices = indices.iter();
+        let mut a = *indices.next().unwrap();
+        let mut b = *indices.next().unwrap();
+
+        let dir_iter = [1, -1].iter().cycle();
+        for (&c, &dir) in indices.zip(dir_iter) {
             if a != b && b != c && a != c {
                 if dir > 0 {
                     vec.push((a, b, c));
