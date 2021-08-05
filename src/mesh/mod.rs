@@ -38,7 +38,7 @@ pub struct VertexBuffers {
 pub struct BoneWeights([BoneWeight; 4]);
 
 #[cfg_attr(feature = "pyo3", pyclass)]
-#[derive(Debug, Default, PartialEq, Clone)]
+#[derive(Debug, Default, PartialEq, Clone, Copy)]
 pub struct BoneWeight {
     index: Option<usize>,
     weight: f32,

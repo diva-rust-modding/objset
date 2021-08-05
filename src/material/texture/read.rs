@@ -58,15 +58,34 @@ impl TextureFlags {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
         let b = i[0];
         let uv_index = b >> 4;
+        println!("uv index: {}", uv_index);
+        let uv_index = UvIndex::from_byte(uv_index).unwrap_or(UvIndex::None);
         let map = TextureMap::from_byte(b & 0x0F).unwrap();
         let b = i[1];
         let uv_translation = b;
         let flags = Self {
             map,
-            uv_index: UvIndex::None,
+            uv_index,
             uv_translation: UvTranslationType::None,
         };
         Ok((&i[4..], flags))
+    }
+}
+
+impl UvIndex {
+    fn from_byte(id: u8) -> Option<Self> {
+        Some(match id {
+            15 => Self::None,
+            0 => Self::Index0,
+            1 => Self::Index1,
+            2 => Self::Index2,
+            3 => Self::Index3,
+            4 => Self::Index4,
+            5 => Self::Index5,
+            6 => Self::Index6,
+            7 => Self::Index7,
+            _ => return None,
+        })
     }
 }
 
