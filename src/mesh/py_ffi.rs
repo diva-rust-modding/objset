@@ -114,8 +114,8 @@ impl PyMesh {
     }
     fn get_submesh_vbo(&self, submesh: PySubMesh) -> Option<SubMeshVBO> {
         let set = submesh.get_unqiue_indicies();
-        let start = *set.first()?;
-        let end = start + *set.last()?;
+        let start = *set.iter().min()?;
+        let end = start + *set.iter().max()?;
         let PVertexBuffers {
             positions,
             normals,
