@@ -1,4 +1,3 @@
-#![feature(map_first_last)]
 use mint;
 
 use std::borrow::Cow;
