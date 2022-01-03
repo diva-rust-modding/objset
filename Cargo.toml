@@ -16,7 +16,7 @@ nom_ext = { git="https://github.com/Waelwindows/nom_ext" }
 num-derive = "0.3.0"
 num-traits = "0.2.12"
 modular-bitfield = "0.6.0"
-pyo3 = { version = "0.10.1", optional = true, features = ["extension-module"] }
+pyo3 = { version = "0.13.2", optional = true, features = ["extension-module", "abi3-py36"] }
 cgmath = { version = "0.17.0", features = ["mint"] }
 
 [target.x86_64-apple-darwin]
