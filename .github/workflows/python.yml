@@ -23,7 +23,7 @@ jobs:
         uses: messense/maturin-action@v1
         with:
           target: x86_64
-          args: --release --out dist --cargo-extra-args="--all-features"
+          args: --release --out dist --no-sdist --cargo-extra-args="--all-features"
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
