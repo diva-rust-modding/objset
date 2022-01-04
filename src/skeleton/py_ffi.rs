@@ -1,6 +1,4 @@
 use super::*;
-use cgmath::Matrix4;
-use cgmath::SquareMatrix;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use pyo3::PyObjectProtocol;
@@ -29,10 +27,6 @@ pub struct PyBone {
 
 #[pymethods]
 impl PyBone {
-    pub fn bind_pose(&self) -> [f32; 16] {
-        let bone: Bone<'_> = self.clone().into();
-        bone.local_bind_pose().into()
-    }
     fn bone_db_id(&self) -> usize {
         match self.exdata {
             Some(_) => self.id & (EXDATA_ID - 1),
