@@ -24,12 +24,14 @@ jobs:
     - name: rust-clippy-check
       uses: actions-rs/clippy-check@v1.0.7
       with:
-        token: ${{ secrets.ACTION_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
   perf:
     runs-on: ubuntu-latest
     steps:
     - name: cargo-bloat
       uses: orf/cargo-bloat-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
   # test:
   #   runs-on: ubuntu-latest
   #   steps:
