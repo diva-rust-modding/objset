@@ -73,8 +73,8 @@ impl<'a> ObjectSet<'a> {
                 ),
             )(i0)?;
             let (_, obj_names) = at_offset(obj_names_ptr, count(offset_cstr, object_cnt))(i0)?;
-            let (_, obj_id) = at_offset(obj_id_ptr, count(u32_usize(endian), object_cnt))(i0)?;
-            let (_, tex_ids) = at_offset(tex_id_ptr, count(u32_usize(endian), tex_id_cnt))(i0)?;
+            let (_, obj_id) = at_offset(obj_id_ptr, count(u32(endian), object_cnt))(i0)?;
+            let (_, tex_ids) = at_offset(tex_id_ptr, count(u32(endian), tex_id_cnt))(i0)?;
 
             for (((obj, name), id), skeleton) in objects
                 .iter_mut()

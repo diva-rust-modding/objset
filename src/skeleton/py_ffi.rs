@@ -15,19 +15,19 @@ pub struct PySkeleton {
 #[derive(Debug, PartialEq, Clone)]
 pub struct PyBone {
     #[pyo3(get, set)]
-    pub id: usize,
+    pub id: u32,
     #[pyo3(get, set)]
     pub inverse_bind_pose: [f32; 16],
     #[pyo3(get, set)]
     pub name: String,
     #[pyo3(get, set)]
-    pub parent: Option<usize>,
+    pub parent: Option<u32>,
     pub exdata: Option<ExData>,
 }
 
 #[pymethods]
 impl PyBone {
-    fn bone_db_id(&self) -> usize {
+    fn bone_db_id(&self) -> u32 {
         match self.exdata {
             Some(_) => self.id & (EXDATA_ID - 1),
             None => self.id,

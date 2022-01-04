@@ -10,7 +10,7 @@ pub struct PyTexture {
     #[pyo3(get, set)]
     sampler_flags: SamplerFlags,
     #[pyo3(get, set)]
-    id: usize,
+    id: u32,
     #[pyo3(get, set)]
     flags: PyTextureFlags,
     #[pyo3(get, set)]

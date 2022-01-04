@@ -11,7 +11,7 @@ type Matrix4 = mint::RowMatrix4<f32>;
 #[derive(Debug, Clone, PartialEq)]
 pub struct Texture {
     sampler_flags: SamplerFlags,
-    id: usize,
+    id: u32,
     flags: TextureFlags,
     ex_shader: [u8; 8], //unknown. Always null
     weight: f32,        //always 1.0

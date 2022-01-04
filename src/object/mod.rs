@@ -11,7 +11,7 @@ mod read;
 
 #[derive(Debug, Default)]
 pub struct Object<'a> {
-    pub id: usize,
+    pub id: u32,
     pub name: Cow<'a, str>,
     pub materials: Vec<Material>,
     pub meshes: Vec<Mesh<'a>>,
@@ -22,5 +22,5 @@ pub struct Object<'a> {
 #[derive(Debug, Default)]
 pub struct ObjectSet<'a> {
     pub objects: Vec<Object<'a>>,
-    pub tex_ids: Vec<usize>,
+    pub tex_ids: Vec<u32>,
 }

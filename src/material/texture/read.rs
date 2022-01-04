@@ -21,7 +21,7 @@ impl Texture {
     }
     pub fn parse(i: &[u8]) -> IResult<&[u8], Option<Self>> {
         let (i, sampler_flags) = SamplerFlags::parse(i)?;
-        let (i, id) = u32_usize(Endianness::Little)(i)?;
+        let (i, id) = u32(Endianness::Little)(i)?;
         let (i, flags) = TextureFlags::parse(i)?;
         let ex_shader: [u8; 8] = i[..8].try_into().unwrap();
         let i = &i[8..];

@@ -32,12 +32,9 @@ impl<'b, 'a: 'b> Skeleton<'a> {
 
             // let read = |offset, f| at_offset(offset, count(f, bone_cnt))(i0);
 
-            let parent = map(
-                i32(endian),
-                |x| if x == -1 { None } else { Some(x as usize) },
-            );
+            let parent = map(i32(endian), |x| if x == -1 { None } else { Some(x as u32) });
 
-            let (_, ids) = at_offset(id_offset, count(u32_usize(endian), bone_cnt))(i0)?;
+            let (_, ids) = at_offset(id_offset, count(u32(endian), bone_cnt))(i0)?;
             let (_, transforms) = at_offset(transform_offset, count(mat44(endian), bone_cnt))(i0)?;
             let (_, names) = at_offset(name_offset, count(offset_cstr, bone_cnt))(i0)?;
             let (_, parents) = at_offset(parent_offset, count(parent, bone_cnt))(i0)?;
@@ -48,11 +45,11 @@ impl<'b, 'a: 'b> Skeleton<'a> {
                 .zip(names.into_iter())
                 .zip(parents.into_iter())
                 .map(|(((id, transform), name), parent)| Bone {
-                    id: id,
+                    id,
                     inverse_bind_pose: transform,
                     name,
                     exdata: if id & EXDATA_ID != 0 { Some(()) } else { None },
-                    parent: parent,
+                    parent,
                 })
                 .collect();
             Ok((i, Self { bones }))

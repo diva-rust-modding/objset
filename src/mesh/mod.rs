@@ -40,7 +40,7 @@ pub struct BoneWeights([BoneWeight; 4]);
 #[cfg_attr(feature = "pyo3", pyclass)]
 #[derive(Debug, Default, PartialEq, Clone, Copy)]
 pub struct BoneWeight {
-    index: Option<usize>,
+    index: Option<u16>,
     weight: f32,
 }
 
@@ -57,8 +57,8 @@ pub struct SubMesh {
     //only available on old formats
     pub bounding_sphere: BoundingSphere,
     pub primitive: PrimitiveType,
-    pub indicies: Vec<usize>,
-    pub bone_indicies: Vec<usize>, //originally u16
-    pub material_index: usize,     //originally u32
-    pub mat_uv_indicies: [u8; 8],  //originally bool
+    pub indicies: Vec<u16>,
+    pub bone_indicies: Vec<u16>,  //originally u16
+    pub material_index: u32,      //originally u32
+    pub mat_uv_indicies: [u8; 8], //originally bool
 }

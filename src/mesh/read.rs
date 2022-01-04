@@ -187,7 +187,7 @@ impl VertexBuffers {
             let bone_weights = v4(offests.bone_weights)?.1;
             let bone_indicies = v4(offests.bone_indicies)?.1;
 
-            let id = |x| if x != -1. { Some(x as usize) } else { None };
+            let id = |x| if x != -1. { Some(x as u16) } else { None };
 
             let weights = bone_weights
                 .into_iter()
@@ -283,11 +283,11 @@ impl SubMesh {
             let cto = |f| count_then_offset(i0, u32_usize(endian), f);
             let (i, _unused_flags) = u32(endian)(i)?;
             let (i, bounding_sphere) = BoundingSphere::parse(i, endian)?;
-            let (i, material_index) = u32_usize(endian)(i)?;
+            let (i, material_index) = u32(endian)(i)?;
             let mut mat_uv_indicies = [0; 8];
             mat_uv_indicies.copy_from_slice(&i[..8]);
             let i = &i[8..];
-            let (i, bone_indicies) = cto(usize(u16(endian)))(i)?;
+            let (i, bone_indicies) = cto(u16(endian))(i)?;
             let (i, _bones_per_vertex) = u32_usize(endian)(i)?;
             let (i, primitive) = PrimitiveType::parse(endian)(i)?;
             let primitive = primitive.expect("Unexpected primitive type found");
@@ -300,7 +300,7 @@ impl SubMesh {
             //     Primitives::parse(index_format, primitive_type, index_cnt, endian),
             //     endian,
             // )(i)?;
-            let (i, indicies) = count_then_offset(i0, u32_usize(endian), usize(u16(endian)))(i)?;
+            let (i, indicies) = count_then_offset(i0, u32_usize(endian), u16(endian))(i)?;
             let (i, _flags) = u32(endian)(i)?;
             //skip the reserved data
             let i = &i[6 * 4..];

@@ -15,7 +15,7 @@ use super::*;
 #[derive(Debug, Default, Clone)]
 pub struct PObject {
     #[pyo3(get, set)]
-    pub id: usize,
+    pub id: u32,
     #[pyo3(get, set)]
     pub name: String,
     #[pyo3(get, set)]
@@ -34,7 +34,7 @@ pub struct PyObjectSet {
     #[pyo3(get, set)]
     pub objects: Vec<PObject>,
     #[pyo3(get, set)]
-    pub tex_ids: Vec<usize>,
+    pub tex_ids: Vec<u32>,
 }
 
 impl From<Object<'_>> for PObject {

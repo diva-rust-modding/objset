@@ -34,7 +34,7 @@ pub struct PVertexBuffers {
 #[pymethods]
 impl BoneWeight {
     #[getter]
-    fn get_index(&self) -> PyResult<Option<usize>> {
+    fn get_index(&self) -> PyResult<Option<u16>> {
         Ok(self.index)
     }
     #[getter]
@@ -42,7 +42,7 @@ impl BoneWeight {
         Ok(self.weight)
     }
     #[setter]
-    fn set_index(&mut self, value: Option<usize>) -> PyResult<()> {
+    fn set_index(&mut self, value: Option<u16>) -> PyResult<()> {
         self.index = value;
         Ok(())
     }
@@ -53,7 +53,7 @@ impl BoneWeight {
     }
 }
 
-pub type Index = (usize, usize, usize);
+pub type Index = (u16, u16, u16);
 
 #[pyclass(module = "objset")]
 #[derive(Debug, Default, Clone, Copy)]
@@ -86,9 +86,9 @@ pub struct PySubMesh {
     #[pyo3(get, set)]
     pub indicies: Vec<Index>,
     #[pyo3(get, set)]
-    pub bone_indicies: Vec<usize>, //originally u16
+    pub bone_indicies: Vec<u16>, //originally u16
     #[pyo3(get, set)]
-    pub material_index: usize, //originally u32
+    pub material_index: u32, //originally u32
     #[pyo3(get, set)]
     pub mat_uv_indicies: [u8; 8], //originally bool
 }
@@ -131,52 +131,52 @@ impl PyMesh {
 
         let positions = set
             .iter()
-            .map(|&x| positions.get(x).cloned())
+            .map(|&x| positions.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
         let normals = set
             .iter()
-            .map(|&x| normals.get(x).cloned())
+            .map(|&x| normals.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
         let tangents = set
             .iter()
-            .map(|&x| tangents.get(x).cloned())
+            .map(|&x| tangents.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
         let uv1 = set
             .iter()
-            .map(|&x| uv1.get(x).cloned())
+            .map(|&x| uv1.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
         let uv2 = set
             .iter()
-            .map(|&x| uv2.get(x).cloned())
+            .map(|&x| uv2.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
         let uv3 = set
             .iter()
-            .map(|&x| uv3.get(x).cloned())
+            .map(|&x| uv3.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
         let uv4 = set
             .iter()
-            .map(|&x| uv4.get(x).cloned())
+            .map(|&x| uv4.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
         let color1 = set
             .iter()
-            .map(|&x| color1.get(x).cloned())
+            .map(|&x| color1.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
         let color2 = set
             .iter()
-            .map(|&x| color2.get(x).cloned())
+            .map(|&x| color2.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
         let weights = set
             .iter()
-            .map(|&x| weights.get(x).cloned())
+            .map(|&x| weights.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
 
@@ -205,16 +205,16 @@ use std::collections::BTreeSet;
 #[derive(Debug, Default, Clone)]
 pub struct SubMeshVBO {
     #[pyo3(get, set)]
-    start: usize,
+    start: u16,
     #[pyo3(get, set)]
-    end: usize,
+    end: u16,
     #[pyo3(get, set)]
     vbo: PVertexBuffers,
 }
 
 #[pymethods]
 impl PySubMesh {
-    fn get_unqiue_indicies(&self) -> BTreeSet<usize> {
+    fn get_unqiue_indicies(&self) -> BTreeSet<u16> {
         self.indicies
             .iter()
             .flat_map(|(x, y, z)| vec![x, y, z])
@@ -223,7 +223,7 @@ impl PySubMesh {
     }
     fn get_new_indices(&self) -> Vec<Index> {
         let unique = self.get_unqiue_indicies();
-        let f = |x| unique.iter().position(|y| y == x).unwrap();
+        let f = |x| unique.iter().position(|y| y == x).unwrap() as u16;
         self.indicies
             .iter()
             .map(|(a, b, c)| (f(a), f(b), f(c)))
@@ -322,7 +322,7 @@ impl From<SubMesh> for PySubMesh {
     }
 }
 
-fn tristrips(idx: Vec<usize>) -> Vec<Index> {
+fn tristrips(idx: Vec<u16>) -> Vec<Index> {
     let mut vec = vec![];
     for indices in idx.split(|&x| x == 0xFFFF) {
         let mut indices = indices.iter();
