@@ -4,9 +4,8 @@ use nom::multi::count;
 use nom::number::Endianness;
 use nom::IResult;
 use nom_ext::*;
-use num_derive::*;
 
-#[derive(Debug, PartialEq, PartialOrd, FromPrimitive, ToPrimitive, Copy, Clone)]
+#[derive(Debug, PartialEq, PartialOrd, Copy, Clone)]
 pub enum PrimitiveType {
     Point,         //0,
     Line,          //1,
@@ -22,11 +21,22 @@ pub enum PrimitiveType {
 
 impl PrimitiveType {
     pub(crate) fn parse(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], Option<Self>> {
-        use num_traits::FromPrimitive;
         move |i: &[u8]| {
             let (i, val) = u32(endian)(i)?;
             println!("primitive id: {}", val);
-            let val = Self::from_u32(val);
+            let val = match val {
+                0 => Some(Self::Point),
+                1 => Some(Self::Line),
+                2 => Some(Self::LineStrip),
+                3 => Some(Self::LineLoop),
+                4 => Some(Self::Triangle),
+                5 => Some(Self::TriangleStrip),
+                6 => Some(Self::TriangleFan),
+                7 => Some(Self::Quad),
+                8 => Some(Self::QuadStrip),
+                9 => Some(Self::Polygon),
+                _ => None,
+            };
             Ok((i, val))
         }
     }
@@ -53,7 +63,7 @@ pub enum Primitives {
     QuadStrips(Vec<Vector4<usize>>),
     Polygons,
 }
-#[derive(Debug, FromPrimitive, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub(crate) enum IndexType {
     U8,
     U16,
@@ -62,10 +72,14 @@ pub(crate) enum IndexType {
 
 impl IndexType {
     pub(crate) fn parse(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], Option<Self>> {
-        use num_traits::FromPrimitive;
         move |i: &[u8]| {
             let (i, val) = u32(endian)(i)?;
-            let val = Self::from_u32(val);
+            let val = match val {
+                0 => Some(Self::U8),
+                1 => Some(Self::U16),
+                2 => Some(Self::U32),
+                _ => None,
+            };
             Ok((i, val))
         }
     }
