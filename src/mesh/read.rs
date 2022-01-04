@@ -324,30 +324,30 @@ impl SubMesh {
 mod tests {
     use super::*;
 
-    const I: &[u8] = include_bytes!("../../assets/mikitm030_obj.bin");
-    const OBJ_OFF: usize = 0x580;
-    const MESH_OFF: usize = 0x5D0;
-    const SUBMESH_OFF: usize = 0xC90;
+    const I: &[u8] = include_bytes!("../../assets/suzanne_obj.bin");
+    const OBJ_OFF: usize = 0x40;
+    const MESH_OFF: usize = OBJ_OFF + 0x50;
+    const SUBMESH_OFF: usize = OBJ_OFF + 296;
 
     const BOUNDS: BoundingSphere = BoundingSphere {
         center: Vec3 {
             x: 0.,
-            y: 1.4760411,
-            z: -0.063142225,
+            y: 0.,
+            z: 0.,
         },
-        radius: 0.14804693,
+        radius: 1.3671875,
     };
 
     #[test]
     fn read_attrs() {
         let i = &[0x17, 0x0C, 0, 0];
         let (_, attr) = MeshInfoBitField::parse(i).unwrap();
-        assert!(attr.get_position());
-        assert!(attr.get_normal());
-        assert!(attr.get_tangent());
-        assert!(attr.get_uv1());
-        assert!(attr.get_bone_weight());
-        assert!(attr.get_bone_index());
+        assert!(attr.position());
+        assert!(attr.normal());
+        assert!(attr.tangent());
+        assert!(attr.uv1());
+        assert!(attr.bone_weight());
+        assert!(attr.bone_index());
     }
 
     #[test]
@@ -355,19 +355,9 @@ mod tests {
         let global = &I[OBJ_OFF..];
         let input = &I[MESH_OFF..];
         let (_, mesh) = Mesh::parse(global, Endianness::Little)(input).unwrap();
-        assert_eq!(
-            mesh.bounding_sphere,
-            BoundingSphere {
-                center: Vec3 {
-                    x: 0.0,
-                    y: 1.4760411,
-                    z: -0.063142225
-                },
-                radius: 0.14804693
-            }
-        );
-        assert_eq!(mesh.vertex_buffers.positions.len(), 1510);
-        assert_eq!(mesh.name, "headset_MZ");
+        assert_eq!(mesh.bounding_sphere, BOUNDS);
+        assert_eq!(mesh.vertex_buffers.positions.len(), 1966);
+        assert_eq!(mesh.name, "Suzanne");
     }
     #[test]
     fn read_submesh() {
@@ -375,10 +365,10 @@ mod tests {
         let input = &I[SUBMESH_OFF..];
         let (_, submesh) = SubMesh::parse(global, Endianness::Little)(input).unwrap();
         assert_eq!(submesh.bounding_sphere, BOUNDS);
-        assert_eq!(submesh.material_index, 4);
+        assert_eq!(submesh.material_index, 0);
         assert_eq!(submesh.mat_uv_indicies, [0; 8]);
         assert_eq!(submesh.bone_indicies, &[0]);
-        assert_eq!(submesh.primitive, PrimitiveType::TriangleStrip);
+        assert_eq!(submesh.primitive, PrimitiveType::Triangle);
         assert_eq!(submesh.indicies[0], 0);
     }
 }

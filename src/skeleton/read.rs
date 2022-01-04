@@ -86,48 +86,48 @@ fn mat44(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], RowMatrix4<f32>
 mod tests {
     use super::*;
 
-    const I: &[u8] = include_bytes!("../../assets/mikitm030_obj.bin");
-    const SKEL_OFF: usize = 0x4E0;
+    const I: &[u8] = include_bytes!("../../assets/suzanne_obj.bin");
+    const SKEL_OFF: usize = 164768;
 
     const TRANS: RowMatrix4<f32> = RowMatrix4 {
         x: Vector4 {
-            x: -0.0,
-            y: 0.0,
-            z: 1.0,
-            w: 0.04,
-        },
-        y: Vector4 {
-            x: 1.0,
+            x: 0.01,
             y: -0.0,
             z: 0.0,
+            w: -0.0,
+        },
+        y: Vector4 {
+            x: -0.0,
+            y: 0.01,
+            z: -0.0,
             w: 0.0,
         },
         z: Vector4 {
             x: 0.0,
-            y: 1.0,
-            z: -0.0,
-            w: -1.389,
+            y: -0.0,
+            z: 0.01,
+            w: -0.0,
         },
         w: Vector4 {
-            x: 0.0,
+            x: -0.0,
             y: 0.0,
-            z: 0.0,
+            z: -0.0,
             w: 1.0,
         },
     };
     const BONE: Bone<'_> = Bone {
-        name: Cow::Borrowed("j_kao_wj"),
+        name: Cow::Borrowed("Bone"),
         inverse_bind_pose: TRANS,
-        id: 10,
-        exdata: None,
-        parent: Some(7),
+        id: 4294967295,
+        exdata: Some(()),
+        parent: Some(84288768),
     };
 
     #[test]
     fn read_skeleton() {
         let input = &I[SKEL_OFF..];
         let (_, skel) = Skeleton::parse(I, Endianness::Little)(input).unwrap();
-        assert_eq!(skel.bones.len(), 46);
+        assert_eq!(skel.bones.len(), 1);
         assert_eq!(skel.bones[0], BONE);
     }
 }

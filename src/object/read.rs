@@ -107,32 +107,23 @@ impl<'a> ObjectSet<'a> {
 mod tests {
     use super::*;
 
-    const INPUT: &[u8] = include_bytes!("../../assets/mikitm030_obj.bin");
-    const RININPUT: &[u8] = include_bytes!("../../assets/rinitm001_obj.bin");
-    const STGINPUT: &[u8] = include_bytes!("../../assets/stgns001_obj.bin");
-    const OBJECT: usize = 0x580;
+    const INPUT: &[u8] = include_bytes!("../../assets/suzanne_obj.bin");
+    const OBJECT: usize = 0x40;
 
     #[test]
     fn objectset_read() {
-        let _objset = ObjectSet::parse(Endianness::Little)(INPUT);
-        // let (_, objset) = ObjectSet::parse(Endianness::Little)(INPUT).unwrap();
-        // assert_eq!(objset.objects.len(), 1);
-    }
-    #[test]
-    fn rin_objectset_read() {
-        let (_, objset) = ObjectSet::parse(Endianness::Little)(RININPUT).unwrap();
+        let (_, objset) = ObjectSet::parse(Endianness::Little)(INPUT).unwrap();
         assert_eq!(objset.objects.len(), 1);
-    }
-    #[test]
-    fn stg_objectset_read() {
-        let objset = ObjectSet::parse(Endianness::Little)(STGINPUT).unwrap();
-        // todo!()
-        // assert_eq!(objset.objects.len(), 1);
+        assert_eq!(objset.objects[0].name, "suzanne");
+        assert_eq!(objset.objects[0].id, 7);
+        assert_eq!(objset.tex_ids.len(), 1);
     }
 
     #[test]
     fn object_read() {
-        let input = &INPUT[OBJECT..];
-        let (_, _object) = Object::parse(Endianness::Little)(input).unwrap();
+        let (_, objset) = Object::parse(Endianness::Little)(&INPUT[OBJECT..]).unwrap();
+        assert_eq!(objset.materials.len(), 1);
+        assert_eq!(objset.meshes.len(), 1);
+        assert_eq!(objset.skeleton, None);
     }
 }
