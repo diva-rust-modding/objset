@@ -2,6 +2,8 @@ name: Python Wheels
 
 on:
   push:
+    tags:
+      - '*'
   pull_request:
 
 jobs:
@@ -82,28 +84,29 @@ jobs:
         name: wheels
         path: dist
 
-  linux-cross:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: [aarch64, armv7, s390x, ppc64le, ppc64]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-    - name: Build Wheels
-      uses: messense/maturin-action@v1
-      with:
-        rust-toolchain: nightly
-        target: ${{ matrix.target }}
-        manylinux: auto
-        args: --release --out dist --no-sdist --cargo-extra-args="--all-features"
-    - name: Upload wheels
-      uses: actions/upload-artifact@v2
-      with:
-        name: wheels
-        path: dist
+  # For more architectures
+  # linux-cross:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       target: [aarch64, armv7, s390x, ppc64le, ppc64]
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - uses: actions/setup-python@v2
+  #     with:
+  #       python-version: 3.9
+  #   - name: Build Wheels
+  #     uses: messense/maturin-action@v1
+  #     with:
+  #       rust-toolchain: nightly
+  #       target: ${{ matrix.target }}
+  #       manylinux: auto
+  #       args: --release --out dist --no-sdist --cargo-extra-args="--all-features"
+  #   - name: Upload wheels
+  #     uses: actions/upload-artifact@v2
+  #     with:
+  #       name: wheels
+  #       path: dist
 
   release:
     name: Release
