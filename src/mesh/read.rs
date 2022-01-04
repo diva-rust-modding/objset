@@ -36,8 +36,9 @@ struct MeshInfoBitField {
 
 impl MeshInfoBitField {
     fn parse(i0: &[u8]) -> IResult<&[u8], Self> {
+        use std::convert::TryInto;
         let (i, val) = take(4usize)(i0)?;
-        let val = Self::try_from(val).expect("this should never happen");
+        let val = Self::from_bytes(val.try_into().unwrap());
         Ok((i, val))
     }
 }
