@@ -7,8 +7,6 @@ use nom::multi::count;
 
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::r#trait::*;
-use nom_ext::*;
 
 use std::convert::TryFrom;
 
