@@ -17,7 +17,7 @@ num-derive = "0.3.0"
 num-traits = "0.2.12"
 modular-bitfield = "0.6.0"
 pyo3 = { version = "0.15.1", optional = true, features = ["extension-module", "abi3-py36"] }
-cgmath = { version = "0.17.0", features = ["mint"] }
+cgmath = { version = "0.18.0", features = ["mint"] }
 
 [target.x86_64-apple-darwin]
 rustflags = [
