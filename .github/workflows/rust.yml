@@ -25,6 +25,6 @@ jobs:
       uses: orf/cargo-bloat-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        args: --all-features
+        bloat_args: --all-features
     - name: Rust Cache
       uses: Swatinem/rust-cache@v1.3.0
