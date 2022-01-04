@@ -30,7 +30,8 @@ jobs:
     steps:
     - name: cargo-bloat
       uses: orf/cargo-bloat-action@v1
-  test:
-    runs-on: ubuntu-latest
-    #- name: Run tests
-    #  run: cargo test --verbose
+  # test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Run tests
+  #     run: cargo test --verbose
