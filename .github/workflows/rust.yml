@@ -16,23 +16,15 @@ jobs:
       run: cargo build --verbose --all-features
     - name: Run tests
       run: cargo test --verbose --all-features
-    - name: Rust Cache
-      uses: Swatinem/rust-cache@v1.3.0
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
     - name: rust-clippy-check
       uses: actions-rs/clippy-check@v1.0.7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         args: --all-features
-  perf:
-    runs-on: ubuntu-latest
-    steps:
-    - name: cargo-bloat
-    - uses: actions/checkout@v2
+    - name: Check for Bloat
       uses: orf/cargo-bloat-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         args: --all-features
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v1.3.0
