@@ -1,7 +1,5 @@
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::r#trait::*;
-use nom_ext::*;
 
 use super::*;
 use crate::read::*;

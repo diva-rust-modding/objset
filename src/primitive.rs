@@ -3,7 +3,8 @@ use nom::combinator::map;
 use nom::multi::count;
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::*;
+
+use crate::read::*;
 
 #[derive(Debug, PartialEq, PartialOrd, Copy, Clone)]
 pub enum PrimitiveType {

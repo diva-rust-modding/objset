@@ -1,9 +1,8 @@
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::r#trait::*;
-use nom_ext::*;
 
 use super::*;
+use crate::read::*;
 
 impl<'a> Object<'a> {
     pub fn parse(endian: Endianness) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], Object<'a>> {
@@ -37,7 +36,6 @@ impl<'a> ObjectSet<'a> {
         use nom::combinator::map;
         use nom::combinator::opt;
         use nom::multi::count;
-        use nom_ext::*;
         move |i0: &'a [u8]| {
             let cstr = map(take_until("\0"), String::from_utf8_lossy);
             let offset_cstr = offset_then(i0, cstr, endian);
