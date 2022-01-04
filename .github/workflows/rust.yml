@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --verbose --all-features
     - name: Rust Cache
       uses: Swatinem/rust-cache@v1.3.0
   # lint:
@@ -34,8 +34,10 @@ jobs:
   #     with:
   #       token: ${{ secrets.GITHUB_TOKEN }}
   #       args: --all-features
-  # test:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Run tests
-  #     run: cargo test --verbose
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run tests
+      run: cargo test --verbose --all-features
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v1.3.0
