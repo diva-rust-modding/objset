@@ -2,8 +2,8 @@ use nom::bytes::complete::take_until;
 use nom::multi::count;
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::*;
 
+use crate::read::*;
 use crate::Vec4;
 
 use super::*;

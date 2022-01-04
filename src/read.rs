@@ -30,6 +30,14 @@ pub fn u16(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], u16> {
     }
 }
 
+pub fn i32(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], i32> {
+    use nom::number::complete::{be_i32, le_i32};
+    move |i: &[u8]| match endian {
+        Endianness::Little => le_i32(i),
+        Endianness::Big => be_i32(i),
+    }
+}
+
 pub fn u32(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], u32> {
     use nom::number::complete::{be_u32, le_u32};
     move |i: &[u8]| match endian {
