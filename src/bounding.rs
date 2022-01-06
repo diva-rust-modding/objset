@@ -2,7 +2,6 @@ use crate::Vec3;
 use nom::number::complete::le_f32;
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::r#trait::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct AxisAlignedBoundingBox {
@@ -33,8 +32,8 @@ impl Default for BoundingSphere {
     }
 }
 
-impl ParseEndian for AxisAlignedBoundingBox {
-    fn parse(i0: &[u8], _endian: Endianness) -> IResult<&[u8], Self> {
+impl AxisAlignedBoundingBox {
+    pub fn parse(i0: &[u8], _endian: Endianness) -> IResult<&[u8], Self> {
         let (i, x) = le_f32(i0)?;
         let (i, y) = le_f32(i)?;
         let (i, z) = le_f32(i)?;
@@ -46,8 +45,8 @@ impl ParseEndian for AxisAlignedBoundingBox {
         Ok((i, Self { min, max }))
     }
 }
-impl ParseEndian for BoundingBox {
-    fn parse(i0: &[u8], _endian: Endianness) -> IResult<&[u8], Self> {
+impl BoundingBox {
+    pub fn parse(i0: &[u8], _endian: Endianness) -> IResult<&[u8], Self> {
         let (i, x) = le_f32(i0)?;
         let (i, y) = le_f32(i)?;
         let (i, z) = le_f32(i)?;
@@ -63,8 +62,8 @@ impl ParseEndian for BoundingBox {
         Ok((i, Self { center, sides }))
     }
 }
-impl ParseEndian for BoundingSphere {
-    fn parse(i0: &[u8], _endian: Endianness) -> IResult<&[u8], BoundingSphere> {
+impl BoundingSphere {
+    pub fn parse(i0: &[u8], _endian: Endianness) -> IResult<&[u8], BoundingSphere> {
         let (i, x) = le_f32(i0)?;
         let (i, y) = le_f32(i)?;
         let (i, z) = le_f32(i)?;

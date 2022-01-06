@@ -1,10 +1,10 @@
 use nom::number::complete::*;
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::*;
 use std::convert::TryInto;
 
 use super::*;
+use crate::util::read::*;
 
 impl Texture {
     pub fn parse_eight(i: &[u8]) -> IResult<&[u8], [Option<Self>; 8]> {

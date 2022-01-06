@@ -1,9 +1,10 @@
 use nom::bytes::complete::take_until;
 use nom::multi::count;
+use nom::number::complete::{i32, u32};
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::*;
 
+use crate::util::read::*;
 use crate::Vec4;
 
 use super::*;
@@ -18,12 +19,12 @@ impl<'b, 'a: 'b> Skeleton<'a> {
             let cstr = map(take_until("\0"), String::from_utf8_lossy);
             let offset_cstr = offset_then(i0, cstr, endian);
 
-            let (i, id_offset) = u32_usize(endian)(i)?;
-            let (i, transform_offset) = u32_usize(endian)(i)?;
-            let (i, name_offset) = u32_usize(endian)(i)?;
-            let (i, _exp_block_ptr) = u32_usize(endian)(i)?;
-            let (i, bone_cnt) = u32_usize(endian)(i)?;
-            let (i, parent_offset) = u32_usize(endian)(i)?;
+            let (i, id_offset) = usize(u32(endian))(i)?;
+            let (i, transform_offset) = usize(u32(endian))(i)?;
+            let (i, name_offset) = usize(u32(endian))(i)?;
+            let (i, _exp_block_ptr) = usize(u32(endian))(i)?;
+            let (i, bone_cnt) = usize(u32(endian))(i)?;
+            let (i, parent_offset) = usize(u32(endian))(i)?;
 
             dbg!(id_offset);
             dbg!(transform_offset);

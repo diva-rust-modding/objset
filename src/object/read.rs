@@ -1,14 +1,15 @@
+use nom::number::complete::u32;
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::r#trait::*;
-use nom_ext::*;
+
+use crate::util::read::{at_offset, count_then_offset, offset_then, usize};
 
 use super::*;
 
 impl<'a> Object<'a> {
     pub fn parse(endian: Endianness) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], Object<'a>> {
         move |i0: &'a [u8]| {
-            let cto = |x| count_then_offset(i0, u32_usize(endian), x);
+            let cto = |x| count_then_offset(i0, usize(u32(endian)), x);
 
             let (i, signature) = u32(endian)(i0)?;
             println!("sig {:#X}", signature);
@@ -17,7 +18,7 @@ impl<'a> Object<'a> {
             let (i, bounding_sphere) = BoundingSphere::parse(i, endian)?;
             let (i, meshes) = cto(Mesh::parse(i0, endian))(i)?;
             let (i, materials) =
-                count_then_offset(i0, u32_usize(endian), Material::parse(endian))(i)?;
+                count_then_offset(i0, usize(u32(endian)), Material::parse(endian))(i)?;
             Ok((
                 i,
                 Self {
@@ -37,20 +38,19 @@ impl<'a> ObjectSet<'a> {
         use nom::combinator::map;
         use nom::combinator::opt;
         use nom::multi::count;
-        use nom_ext::*;
         move |i0: &'a [u8]| {
             let cstr = map(take_until("\0"), String::from_utf8_lossy);
             let offset_cstr = offset_then(i0, cstr, endian);
 
             let (i, sig) = u32(endian)(i0)?;
-            let (i, object_cnt) = u32_usize(endian)(i)?;
-            let (i, bone_cnt) = u32_usize(endian)(i)?;
-            let (i, object_tbl_ptr) = u32_usize(endian)(i)?;
-            let (i, skel_tbl_ptr) = u32_usize(endian)(i)?;
-            let (i, obj_names_ptr) = u32_usize(endian)(i)?;
-            let (i, obj_id_ptr) = u32_usize(endian)(i)?;
-            let (i, tex_id_ptr) = u32_usize(endian)(i)?;
-            let (i, tex_id_cnt) = u32_usize(endian)(i)?;
+            let (i, object_cnt) = usize(u32(endian))(i)?;
+            let (i, bone_cnt) = usize(u32(endian))(i)?;
+            let (i, object_tbl_ptr) = usize(u32(endian))(i)?;
+            let (i, skel_tbl_ptr) = usize(u32(endian))(i)?;
+            let (i, obj_names_ptr) = usize(u32(endian))(i)?;
+            let (i, obj_id_ptr) = usize(u32(endian))(i)?;
+            let (i, tex_id_ptr) = usize(u32(endian))(i)?;
+            let (i, tex_id_cnt) = usize(u32(endian))(i)?;
 
             dbg!(sig);
             dbg!(object_cnt);

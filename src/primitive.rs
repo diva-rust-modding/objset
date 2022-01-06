@@ -1,9 +1,11 @@
 #[cfg(feature = "pyo3")]
 use nom::combinator::map;
 use nom::multi::count;
+use nom::number::complete::{u16, u32};
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::*;
+
+use crate::util::read::*;
 
 #[derive(Debug, PartialEq, PartialOrd, Copy, Clone)]
 pub enum PrimitiveType {

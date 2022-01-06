@@ -4,13 +4,12 @@ use pyo3::prelude::*;
 use nom::bytes::complete::take;
 use nom::multi::count;
 
+use nom::number::complete::{u16, u32};
 use nom::number::Endianness;
 use nom::IResult;
-use nom_ext::r#trait::*;
-use nom_ext::*;
 
 use super::*;
-use crate::read::*;
+use crate::util::read::*;
 
 use modular_bitfield::prelude::*;
 #[bitfield]
@@ -57,7 +56,7 @@ struct MeshInfoOffsets {
 impl MeshInfoOffsets {
     fn parse(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], Self> {
         move |i0: &[u8]| {
-            let offset = u32_usize(endian);
+            let mut offset = usize(u32(endian));
             let (i, position) = offset(i0)?;
             let (i, normal) = offset(i)?;
             let (i, tangent) = offset(i)?;
@@ -136,7 +135,7 @@ fn vec4(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], Vec4> {
 fn vec4i(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], mint::Vector4<usize>> {
     use nom::sequence::tuple;
     move |i0: &[u8]| {
-        let f32 = |x| u32_usize(endian)(x);
+        let f32 = |x| usize(u32(endian))(x);
         let (i, (x, y, z, w)) = tuple((f32, f32, f32, f32))(i0)?;
         Ok((i, mint::Vector4 { x, y, z, w }))
     }
@@ -236,7 +235,7 @@ impl<'b> Mesh<'b> {
     ) -> impl Fn(&'b [u8]) -> IResult<&'b [u8], Mesh<'b>> {
         use nom::sequence::tuple;
         move |i: &'b [u8]| {
-            let cto = |f| count_then_offset(i0, u32_usize(endian), f);
+            let cto = |f| count_then_offset(i0, usize(u32(endian)), f);
             //skip 4 bytes
             println!("----------Mesh start----------");
             let i = &i[4..];
@@ -247,7 +246,7 @@ impl<'b> Mesh<'b> {
             let (i, submeshes) = cto(SubMesh::parse(i0, endian))(i)?;
             let (i, _attr) = MeshInfoBitField::parse(i)?;
             let (i, _stride) = u32(endian)(i)?;
-            let (i, vert_count) = u32_usize(endian)(i)?;
+            let (i, vert_count) = usize(u32(endian))(i)?;
             let (i, offsets) = MeshInfoOffsets::parse(endian)(i)?;
             let (_, vertex_buffers) = VertexBuffers::parse(vert_count, offsets, endian)(i0)?;
             let i = &i[4..];
@@ -274,7 +273,7 @@ impl SubMesh {
         endian: Endianness,
     ) -> impl Fn(&'b [u8]) -> IResult<&'b [u8], Self> {
         move |i: &'b [u8]| {
-            let cto = |f| count_then_offset(i0, u32_usize(endian), f);
+            let cto = |f| count_then_offset(i0, usize(u32(endian)), f);
             let (i, _unused_flags) = u32(endian)(i)?;
             let (i, bounding_sphere) = BoundingSphere::parse(i, endian)?;
             let (i, material_index) = u32(endian)(i)?;
@@ -282,7 +281,7 @@ impl SubMesh {
             mat_uv_indicies.copy_from_slice(&i[..8]);
             let i = &i[8..];
             let (i, bone_indicies) = cto(u16(endian))(i)?;
-            let (i, _bones_per_vertex) = u32_usize(endian)(i)?;
+            let (i, _bones_per_vertex) = usize(u32(endian))(i)?;
             let (i, primitive) = PrimitiveType::parse(endian)(i)?;
             let primitive = primitive.expect("Unexpected primitive type found");
             let (i, index_format) = IndexType::parse(endian)(i)?;
@@ -294,11 +293,11 @@ impl SubMesh {
             //     Primitives::parse(index_format, primitive_type, index_cnt, endian),
             //     endian,
             // )(i)?;
-            let (i, indicies) = count_then_offset(i0, u32_usize(endian), u16(endian))(i)?;
+            let (i, indicies) = count_then_offset(i0, usize(u32(endian)), u16(endian))(i)?;
             let (i, _flags) = u32(endian)(i)?;
             //skip the reserved data
             let i = &i[6 * 4..];
-            let (i, _index_offset) = u32_usize(endian)(i)?;
+            let (i, _index_offset) = usize(u32(endian))(i)?;
             Ok((
                 i,
                 Self {
