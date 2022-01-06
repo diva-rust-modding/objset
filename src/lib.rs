@@ -1,5 +1,3 @@
-use mint;
-
 use std::borrow::Cow;
 
 pub mod bounding;

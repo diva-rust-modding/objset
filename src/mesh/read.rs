@@ -2,15 +2,12 @@
 use pyo3::prelude::*;
 
 use nom::bytes::complete::take;
-use nom::combinator::map;
 use nom::multi::count;
 
 use nom::number::Endianness;
 use nom::IResult;
 use nom_ext::r#trait::*;
 use nom_ext::*;
-
-use std::convert::TryFrom;
 
 use super::*;
 use crate::read::*;
@@ -137,7 +134,6 @@ fn vec4(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], Vec4> {
 }
 
 fn vec4i(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], mint::Vector4<usize>> {
-    use nom::number::complete::{be_f32, le_f32};
     use nom::sequence::tuple;
     move |i0: &[u8]| {
         let f32 = |x| u32_usize(endian)(x);
@@ -238,7 +234,6 @@ impl<'b> Mesh<'b> {
         i0: &'a [u8],
         endian: Endianness,
     ) -> impl Fn(&'b [u8]) -> IResult<&'b [u8], Mesh<'b>> {
-        use nom::bytes::complete::*;
         use nom::sequence::tuple;
         move |i: &'b [u8]| {
             let cto = |f| count_then_offset(i0, u32_usize(endian), f);
@@ -278,7 +273,6 @@ impl SubMesh {
         i0: &'a [u8],
         endian: Endianness,
     ) -> impl Fn(&'b [u8]) -> IResult<&'b [u8], Self> {
-        use nom::sequence::tuple;
         move |i: &'b [u8]| {
             let cto = |f| count_then_offset(i0, u32_usize(endian), f);
             let (i, _unused_flags) = u32(endian)(i)?;

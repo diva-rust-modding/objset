@@ -117,7 +117,6 @@ impl TextureMap {
 }
 
 fn vec4(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], Vec4> {
-    use nom::number::complete::{be_f32, le_f32};
     use nom::sequence::tuple;
     move |i0: &[u8]| {
         let f32 = if endian == Endianness::Little {

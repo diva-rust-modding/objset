@@ -88,14 +88,7 @@ impl<'a> ObjectSet<'a> {
                 obj.skeleton = skeleton;
             }
 
-            Ok((
-                i,
-                Self {
-                    objects,
-                    tex_ids,
-                    ..Default::default()
-                },
-            ))
+            Ok((i, Self { objects, tex_ids }))
         }
     }
 }

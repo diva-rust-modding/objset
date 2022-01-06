@@ -27,7 +27,6 @@ impl Material {
                     name: name.into(),
                     bump_depth,
                     textures,
-                    ..Default::default()
                 },
             ))
         }
