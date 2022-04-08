@@ -120,6 +120,6 @@ jobs:
     # needs: [ macos, windows, linux, linux-cross ]
     needs: [ macos, windows, linux ]
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: wheels
