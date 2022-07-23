@@ -30,9 +30,9 @@ pub enum ShaderType {
 
 #[derive(Debug, Default)]
 pub struct Material {
-    shader: ShaderType,
+    pub shader: ShaderType,
     // shader_flags: ShaderFlags,
-    textures: [Option<Texture>; 8],
+    pub textures: [Option<Texture>; 8],
     // blend_flags: BlendFlags,
     // colors: Color,
     pub name: String,
