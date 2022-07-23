@@ -32,6 +32,8 @@ pub struct PObject {
 #[derive(Debug, Default)]
 pub struct PyObjectSet {
     #[pyo3(get, set)]
+    pub signature: u32,
+    #[pyo3(get, set)]
     pub objects: Vec<PObject>,
     #[pyo3(get, set)]
     pub tex_ids: Vec<u32>,
@@ -64,9 +66,17 @@ impl From<Object<'_>> for PObject {
 
 impl From<ObjectSet<'_>> for PyObjectSet {
     fn from(objset: ObjectSet<'_>) -> Self {
-        let ObjectSet { objects, tex_ids } = objset;
+        let ObjectSet {
+            signature,
+            objects,
+            tex_ids,
+        } = objset;
         let objects = objects.into_iter().map(Into::into).collect();
-        Self { objects, tex_ids }
+        Self {
+            signature,
+            objects,
+            tex_ids,
+        }
     }
 }
 

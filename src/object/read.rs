@@ -42,7 +42,7 @@ impl<'a> ObjectSet<'a> {
             let cstr = map(take_until("\0"), String::from_utf8_lossy);
             let offset_cstr = offset_then(i0, cstr, endian);
 
-            let (i, sig) = u32(endian)(i0)?;
+            let (i, signature) = u32(endian)(i0)?;
             let (i, object_cnt) = usize(u32(endian))(i)?;
             let (i, bone_cnt) = usize(u32(endian))(i)?;
             let (i, object_tbl_ptr) = usize(u32(endian))(i)?;
@@ -52,7 +52,7 @@ impl<'a> ObjectSet<'a> {
             let (i, tex_id_ptr) = usize(u32(endian))(i)?;
             let (i, tex_id_cnt) = usize(u32(endian))(i)?;
 
-            dbg!(sig);
+            dbg!(signature);
             dbg!(object_cnt);
             dbg!(bone_cnt);
             dbg!(object_tbl_ptr);
@@ -88,7 +88,14 @@ impl<'a> ObjectSet<'a> {
                 obj.skeleton = skeleton;
             }
 
-            Ok((i, Self { objects, tex_ids }))
+            Ok((
+                i,
+                Self {
+                    signature,
+                    objects,
+                    tex_ids,
+                },
+            ))
         }
     }
 }

@@ -21,6 +21,7 @@ pub struct Object<'a> {
 
 #[derive(Debug, Default)]
 pub struct ObjectSet<'a> {
+    pub signature: u32,
     pub objects: Vec<Object<'a>>,
     pub tex_ids: Vec<u32>,
 }
