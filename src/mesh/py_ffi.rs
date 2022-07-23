@@ -27,7 +27,9 @@ pub struct PVertexBuffers {
     #[pyo3(get, set)]
     pub color2: Vec<(f32, f32, f32, f32)>,
     #[pyo3(get, set)]
-    pub weights: Vec<PyBoneWeights>,
+    pub joint_weights: Vec<(f32, f32, f32, f32)>,
+    #[pyo3(get, set)]
+    pub joint_indices: Vec<(f32, f32, f32, f32)>,
 }
 
 //workaround cause cfg_attr doesn't work on the getter setter shorthand
@@ -126,7 +128,8 @@ impl PyMesh {
             uv4,
             color1,
             color2,
-            weights,
+            joint_weights,
+            joint_indices,
         } = &self.vertex_buffers;
 
         let positions = set
@@ -174,9 +177,14 @@ impl PyMesh {
             .map(|&x| color2.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
-        let weights = set
+        let joint_weights = set
             .iter()
-            .map(|&x| weights.get(x as usize).cloned())
+            .map(|&x| joint_weights.get(x as usize).cloned())
+            .collect::<Option<Vec<_>>>()
+            .unwrap_or_default();
+        let joint_indices = set
+            .iter()
+            .map(|&x| joint_indices.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
 
@@ -193,7 +201,8 @@ impl PyMesh {
                 uv4,
                 color1,
                 color2,
-                weights,
+                joint_weights,
+                joint_indices,
             },
         })
     }
@@ -246,7 +255,8 @@ impl From<VertexBuffers> for PVertexBuffers {
         let uv4 = v2(vbo.uv4);
         let color1 = v4(vbo.color1);
         let color2 = v4(vbo.color2);
-        let weights = vbo.weights.into_iter().map(Into::into).collect();
+        let joint_weights = v4(vbo.joint_weights);
+        let joint_indices = v4(vbo.joint_indices);
         Self {
             positions,
             normals,
@@ -257,7 +267,8 @@ impl From<VertexBuffers> for PVertexBuffers {
             uv4,
             color1,
             color2,
-            weights,
+            joint_weights,
+            joint_indices,
         }
     }
 }

@@ -179,35 +179,8 @@ impl VertexBuffers {
             let uv4 = v2(offests.uv4)?.1;
             let color1 = v4(offests.color1)?.1;
             let color2 = v4(offests.color2)?.1;
-            let bone_weights = v4(offests.bone_weights)?.1;
-            let bone_indicies = v4(offests.bone_indicies)?.1;
-
-            let id = |x| if x != -1. { Some(x as u16) } else { None };
-
-            let weights = bone_weights
-                .into_iter()
-                .zip(bone_indicies.into_iter())
-                .map(|(w, i)| {
-                    BoneWeights([
-                        BoneWeight {
-                            index: id(i.x),
-                            weight: w.x,
-                        },
-                        BoneWeight {
-                            index: id(i.y),
-                            weight: w.y,
-                        },
-                        BoneWeight {
-                            index: id(i.z),
-                            weight: w.z,
-                        },
-                        BoneWeight {
-                            index: id(i.w),
-                            weight: w.w,
-                        },
-                    ])
-                })
-                .collect();
+            let joint_weights = v4(offests.bone_weights)?.1;
+            let joint_indices = v4(offests.bone_indicies)?.1;
 
             Ok((
                 i0,
@@ -221,7 +194,8 @@ impl VertexBuffers {
                     uv4,
                     color1,
                     color2,
-                    weights,
+                    joint_weights,
+                    joint_indices,
                 },
             ))
         }
