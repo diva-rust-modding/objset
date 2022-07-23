@@ -115,9 +115,7 @@ mod tests {
     #[test]
     fn read_material() {
         let input = &I[MAT_OFF..];
-        println!("{:X?}", &input[0x4B0 - 64 - 4 * 16..0x4B0]);
         let (_, mat) = Material::parse(Endianness::Little)(input).unwrap();
-        println!("{:#X?}", mat.textures);
         let tex_len = mat.textures.iter().filter(|x| x.is_some()).count();
         assert_eq!(mat.name, "material");
         assert_eq!(mat.shader, ShaderType::Blinn);

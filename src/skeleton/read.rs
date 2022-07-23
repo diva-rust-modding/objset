@@ -26,10 +26,6 @@ impl<'b, 'a: 'b> Skeleton<'a> {
             let (i, bone_cnt) = usize(u32(endian))(i)?;
             let (i, parent_offset) = usize(u32(endian))(i)?;
 
-            dbg!(id_offset);
-            dbg!(transform_offset);
-            dbg!(name_offset);
-            dbg!(parent_offset);
 
             // let read = |offset, f| at_offset(offset, count(f, bone_cnt))(i0);
 

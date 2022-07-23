@@ -25,7 +25,6 @@ impl PrimitiveType {
     pub(crate) fn parse(endian: Endianness) -> impl Fn(&[u8]) -> IResult<&[u8], Option<Self>> {
         move |i: &[u8]| {
             let (i, val) = u32(endian)(i)?;
-            println!("primitive id: {}", val);
             let val = match val {
                 0 => Some(Self::Point),
                 1 => Some(Self::Line),

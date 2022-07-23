@@ -48,7 +48,6 @@ impl Texture {
 impl SamplerFlags {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
         let (i, sampler_flags) = be_u32(i)?;
-        // println!("sampler flags {:#X}", sampler_flags);
         Ok((i, Self::default()))
     }
 }
@@ -58,7 +57,6 @@ impl TextureFlags {
     fn parse(i: &[u8]) -> IResult<&[u8], Self> {
         let b = i[0];
         let uv_index = b >> 4;
-        println!("uv index: {}", uv_index);
         let uv_index = UvIndex::from_byte(uv_index).unwrap_or(UvIndex::None);
         let map = TextureMap::from_byte(b & 0x0F).unwrap();
         let b = i[1];
@@ -109,7 +107,6 @@ impl TextureMap {
             8 => Self::Sphere,
             9 => Self::Cube,
             e => {
-                println!("UNKNOWN MAP: {}", e);
                 return None;
             }
         })

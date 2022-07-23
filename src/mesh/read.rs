@@ -211,12 +211,9 @@ impl<'b> Mesh<'b> {
         move |i: &'b [u8]| {
             let cto = |f| count_then_offset(i0, usize(u32(endian)), f);
             //skip 4 bytes
-            println!("----------Mesh start----------");
             let i = &i[4..];
             let (i, bounding_sphere) = BoundingSphere::parse(i, endian)?;
             let (_, (submeshes_cnt, submeshes_ptr)) = tuple((u32(endian), u32(endian)))(i)?;
-            dbg!(submeshes_cnt);
-            dbg!(submeshes_ptr);
             let (i, submeshes) = cto(SubMesh::parse(i0, endian))(i)?;
             let (i, _attr) = MeshInfoBitField::parse(i)?;
             let (i, _stride) = u32(endian)(i)?;
@@ -225,9 +222,6 @@ impl<'b> Mesh<'b> {
             let (_, vertex_buffers) = VertexBuffers::parse(vert_count, offsets, endian)(i0)?;
             let i = &i[4..];
             let (i, name) = string64(i)?;
-            println!("{}", name);
-            // println!("vert {} normals {} tangents {}", vertex_buffers.positions.len(), vertex_buffers.normals.len(), vertex_buffers.tangents.len());
-            // println!("first vert {:?}", vertex_buffers.positions[0]);
             Ok((
                 i,
                 Self {
@@ -260,7 +254,6 @@ impl SubMesh {
             let primitive = primitive.expect("Unexpected primitive type found");
             let (i, index_format) = IndexType::parse(endian)(i)?;
             let index_format = index_format.expect("Unexpected index format found");
-            println!("{:?}", index_format);
             // let (i, index_cnt) = u32_usize(endian)(i)?;
             // let (i, indicies) = offset_then(
             //     i0,
