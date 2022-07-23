@@ -25,7 +25,7 @@ pub struct PyTexture {
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct PyTextureFlags {
     #[pyo3(get, set)]
-    uv_index: u8,
+    uv_index: Option<u8>,
     #[pyo3(get, set)]
     uv_translation: u8,
     /// 0: None,
@@ -73,7 +73,7 @@ impl From<TextureFlags> for PyTextureFlags {
             uv_translation,
         } = flags;
         let map = map as u8;
-        let uv_index = uv_index as u8;
+        let uv_index = uv_index.map(|x| x as u8);
         let uv_translation = uv_translation as u8;
         Self {
             map,
@@ -96,7 +96,7 @@ impl<'p> PyObjectProtocol<'p> for PyTextureFlags {
     fn __repr__(&'p self) -> PyResult<String> {
         let format = TextureMap::from_byte(self.map).unwrap_or(TextureMap::None);
         Ok(format!(
-            "PyTextureFlags: {:?} UV {} {}",
+            "PyTextureFlags: {:?} UV {:?} {}",
             format, self.uv_index, self.uv_translation
         ))
     }

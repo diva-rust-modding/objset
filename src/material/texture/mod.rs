@@ -42,8 +42,8 @@ pub struct SamplerFlags {
 #[derive(Debug, Clone, PartialEq)]
 pub struct TextureFlags {
     map: TextureMap,
-    uv_index: UvIndex,
     uv_translation: UvTranslationType,
+    uv_index: Option<UvIndex>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -70,7 +70,6 @@ pub enum TextureMap {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum UvIndex {
-    None = 15,
     Index0 = 0,
     Index1,
     Index2,
@@ -79,4 +78,8 @@ pub enum UvIndex {
     Index5,
     Index6,
     Index7,
+}
+
+impl UvIndex {
+    const NONE: u32 = 15;
 }
