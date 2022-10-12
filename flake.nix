@@ -15,10 +15,10 @@
     nixpkgs,
     flake-utils,
     rust-overlay,
-  }:
-    let
-      emptyOverlay = final: prev: {};
-      objset-drv = pkgs: pkgs.rustPlatform.buildRustPackage {
+  }: let
+    emptyOverlay = final: prev: {};
+    objset-drv = pkgs:
+      pkgs.rustPlatform.buildRustPackage {
         pname = "objset";
         version = "v0.1.0";
 
@@ -29,40 +29,39 @@
           lockFile = ./Cargo.lock;
         };
       };
-      objset-python-drv = pkgs: pythonPackages:
-        pythonPackages.buildPythonPackage rec {
-          pname = "objset";
-          version = "v0.1.0";
+    objset-python-drv = pkgs: pythonPackages:
+      pythonPackages.buildPythonPackage rec {
+        pname = "objset";
+        version = "v0.1.0";
 
-          src = ./.;
+        src = ./.;
 
-          cargoDeps = pkgs.rustPlatform.importCargoLock {
-            # Why I yes, I would like not writing the hash of my Cargo.lock very much.
-            lockFile = ./Cargo.lock;
-          };
+        cargoDeps = pkgs.rustPlatform.importCargoLock {
+          # Why I yes, I would like not writing the hash of my Cargo.lock very much.
+          lockFile = ./Cargo.lock;
+        };
 
-          format = "pyproject";
+        format = "pyproject";
 
-          # HACK: maturinBuildHook is dumb and doesn't read pyproject.toml for some reason
-          maturinBuildFlags = [ ''--cargo-extra-args="--all-features"'' ];
+        # HACK: maturinBuildHook is dumb and doesn't read pyproject.toml for some reason
+        maturinBuildFlags = [''--cargo-extra-args="--all-features"''];
 
-          nativeBuildInputs = with pkgs.rustPlatform; [ cargoSetupHook maturinBuildHook ];
+        nativeBuildInputs = with pkgs.rustPlatform; [cargoSetupHook maturinBuildHook];
 
-          # needed for maturin
-          propagatedBuildInputs = with pkgs.python3Packages; [ cffi ];
+        # needed for maturin
+        propagatedBuildInputs = with pkgs.python3Packages; [cffi];
       };
-      pythonOverride = prev: (prevArgs: {
-              packageOverrides =
-                let
-                  ourOverlay = new: old: {
-                    objset = objset-python-drv prev old;
-                  };
-                in
-                prev.lib.composeExtensions
-                  prevArgs.packageOverrides or emptyOverlay
-                  ourOverlay;
-            });
-    in
+    pythonOverride = prev: (prevArgs: {
+      packageOverrides = let
+        ourOverlay = new: old: {
+          objset = objset-python-drv prev old;
+        };
+      in
+        prev.lib.composeExtensions
+        prevArgs.packageOverrides or emptyOverlay
+        ourOverlay;
+    });
+  in
     flake-utils.lib.eachDefaultSystem (
       system: let
         overlays = [(import rust-overlay)];
@@ -90,26 +89,28 @@
           ];
           buildInputs = with pkgs; [
             maturin
-            (pkgs.python3.withPackages (p: with p; [
-              cffi
-            ]))
+            (pkgs.python3.withPackages (p:
+              with p; [
+                cffi
+              ]))
           ];
           LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildNativeInputs;
         };
         devShells.python = pkgs.mkShell rec {
           buildInputs = with pkgs; [
-            (pkgs.python3.withPackages (p: with p; [
-              packages.objset-python
-            ]))
+            (pkgs.python3.withPackages (p:
+              with p; [
+                packages.objset-python
+              ]))
           ];
         };
       }
-    ) // {
-    overlays.default = final: prev:
-    rec {
-      objset = objset-drv prev;
-      python310 = prev.python310.override (pythonOverride prev);
-      python39 = prev.python39.override (pythonOverride prev);
+    )
+    // {
+      overlays.default = final: prev: rec {
+        objset = objset-drv prev;
+        python310 = prev.python310.override (pythonOverride prev);
+        python39 = prev.python39.override (pythonOverride prev);
+      };
     };
-  };
 }
