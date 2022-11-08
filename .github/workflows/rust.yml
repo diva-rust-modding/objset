@@ -27,4 +27,4 @@ jobs:
     #     token: ${{ secrets.GITHUB_TOKEN }}
     #     bloat_args: --all-features
     - name: Rust Cache
-      uses: Swatinem/rust-cache@v1.3.0
+      uses: Swatinem/rust-cache@v2.1.0
