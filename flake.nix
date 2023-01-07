@@ -71,13 +71,13 @@
         };
         devShells.default = pkgs.mkShell rec {
           nativeBuildInputs = with pkgs; [
-            (pkgs.rust-bin.nightly.latest.default.override {
+            (pkgs.rust-bin.stable.latest.default.override {
               extensions = ["rust-src" "cargo" "rustc"];
             })
             gcc
           ];
 
-          RUST_SRC_PATH = "${pkgs.rust-bin.nightly.latest.default.override {
+          RUST_SRC_PATH = "${pkgs.rust-bin.stable.latest.default.override {
             extensions = ["rust-src"];
           }}/lib/rustlib/src/rust/library";
           buildInputs = with pkgs; [
