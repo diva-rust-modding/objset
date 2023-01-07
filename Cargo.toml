@@ -11,7 +11,7 @@ crate-type = ["lib", "cdylib"]
 
 [dependencies]
 mint = "0.5.5"
-nom = "7.1.0"
+nom = "7.1.2"
 modular-bitfield = "0.11.2"
 pyo3 = { version = "0.17.3", optional = true, features = ["extension-module", "abi3-py37", "generate-import-lib"] }
 
