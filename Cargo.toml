@@ -14,3 +14,6 @@ mint = "0.5.5"
 nom = "7.1.0"
 modular-bitfield = "0.11.2"
 pyo3 = { version = "0.15.1", optional = true, features = ["extension-module", "abi3-py36"] }
+
+[features]
+default = ["pyo3"]
