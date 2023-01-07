@@ -3,7 +3,7 @@
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixpkgs.url = "nixpkgs/nixos-21.11";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -83,18 +83,14 @@
           RUST_SRC_PATH = "${pkgs.rust-bin.nightly.latest.default.override {
             extensions = ["rust-src"];
           }}/lib/rustlib/src/rust/library";
-          buildNativeInputs = with pkgs; [
-            rust-analyzer
-            clippy
-          ];
           buildInputs = with pkgs; [
             maturin
+            rust-analyzer
             (pkgs.python3.withPackages (p:
               with p; [
                 cffi
               ]))
           ];
-          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildNativeInputs;
         };
         devShells.python = pkgs.mkShell rec {
           buildInputs = with pkgs; [
