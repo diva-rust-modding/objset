@@ -1,6 +1,5 @@
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
-use pyo3::PyObjectProtocol;
 use pyo3::PyResult;
 
 use crate::material::py_ffi::*;
@@ -37,6 +36,35 @@ pub struct PyObjectSet {
     pub objects: Vec<PObject>,
     #[pyo3(get, set)]
     pub tex_ids: Vec<u32>,
+}
+
+#[pymethods]
+impl PObject {
+    fn __repr__(&self) -> PyResult<String> {
+        let skel = match self.skeleton {
+            Some(_) => " has skeleton",
+            None => "",
+        };
+        Ok(format!(
+            "PObject {}: {}{} {} mesh(es) {} mat(s)",
+            self.id,
+            self.name,
+            skel,
+            self.meshes.len(),
+            self.materials.len()
+        ))
+    }
+}
+
+#[pymethods]
+impl PyObjectSet {
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "PObjectSet: {} object(s), {} texture id(s)",
+            self.objects.len(),
+            self.tex_ids.len()
+        ))
+    }
 }
 
 impl From<Object<'_>> for PObject {
@@ -77,34 +105,5 @@ impl From<ObjectSet<'_>> for PyObjectSet {
             objects,
             tex_ids,
         }
-    }
-}
-
-#[pyproto]
-impl<'p> PyObjectProtocol<'p> for PyObjectSet {
-    fn __repr__(&'p self) -> PyResult<String> {
-        Ok(format!(
-            "PObjectSet: {} object(s), {} texture id(s)",
-            self.objects.len(),
-            self.tex_ids.len()
-        ))
-    }
-}
-
-#[pyproto]
-impl<'p> PyObjectProtocol<'p> for PObject {
-    fn __repr__(&'p self) -> PyResult<String> {
-        let skel = match self.skeleton {
-            Some(_) => " has skeleton",
-            None => "",
-        };
-        Ok(format!(
-            "PObject {}: {}{} {} mesh(es) {} mat(s)",
-            self.id,
-            self.name,
-            skel,
-            self.meshes.len(),
-            self.materials.len()
-        ))
     }
 }

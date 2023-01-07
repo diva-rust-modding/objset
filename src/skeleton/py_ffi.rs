@@ -1,7 +1,6 @@
 use super::*;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
-use pyo3::PyObjectProtocol;
 use pyo3::PyResult;
 
 #[pyclass]
@@ -33,6 +32,12 @@ impl PyBone {
             None => self.id,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "PyBone {}: {} parent_id: {:?}",
+            self.id, self.name, self.parent
+        ))
+    }
 }
 
 #[pymethods]
@@ -54,6 +59,9 @@ impl PySkeleton {
         bone.parent
             .and_then(|b| self.bones.iter().find(|x| x.id == b))
             .cloned()
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("PySkeleton with {} bone(s)", self.bones.len()))
     }
 }
 
@@ -108,22 +116,5 @@ impl From<PyBone> for Bone<'_> {
             inverse_bind_pose: inverse_bind_pose.into(),
             exdata,
         }
-    }
-}
-
-#[pyproto]
-impl<'p> PyObjectProtocol<'p> for PySkeleton {
-    fn __repr__(&'p self) -> PyResult<String> {
-        Ok(format!("PySkeleton with {} bone(s)", self.bones.len()))
-    }
-}
-
-#[pyproto]
-impl<'p> PyObjectProtocol<'p> for PyBone {
-    fn __repr__(&'p self) -> PyResult<String> {
-        Ok(format!(
-            "PyBone {}: {} parent_id: {:?}",
-            self.id, self.name, self.parent
-        ))
     }
 }
