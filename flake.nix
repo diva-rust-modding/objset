@@ -43,13 +43,10 @@
 
         format = "pyproject";
 
-        # HACK: maturinBuildHook is dumb and doesn't read pyproject.toml for some reason
-        maturinBuildFlags = [''--cargo-extra-args="--all-features"''];
-
         nativeBuildInputs = with pkgs.rustPlatform; [cargoSetupHook maturinBuildHook];
 
         # needed for maturin
-        propagatedBuildInputs = with pkgs.python3Packages; [cffi];
+        propagatedBuildInputs = with pythonPackages; [cffi];
       };
     pythonOverride = prev: (prevArgs: {
       packageOverrides = let
@@ -105,6 +102,7 @@
     // {
       overlays.default = final: prev: rec {
         objset = objset-drv prev;
+        python3 = prev.python3.override (pythonOverride prev);
         python310 = prev.python310.override (pythonOverride prev);
         python39 = prev.python39.override (pythonOverride prev);
       };
