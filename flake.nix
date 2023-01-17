@@ -29,7 +29,7 @@
           lockFile = ./Cargo.lock;
         };
       };
-    objset-python-drv = pkgs: pythonPackages:
+    objset-python-drv = pkgs: isNew: pythonPackages:
       pythonPackages.buildPythonPackage rec {
         pname = "objset";
         version = "v0.1.0";
@@ -43,15 +43,18 @@
 
         format = "pyproject";
 
+        # HACK: maturinBuildHook is dumb and doesn't read pyproject.toml for some reason
+        maturinBuildFlags = if isNew then ["--all-features"] else [''--cargo-extra-args="--all-features"''];
+
         nativeBuildInputs = with pkgs.rustPlatform; [cargoSetupHook maturinBuildHook];
 
         # needed for maturin
         propagatedBuildInputs = with pythonPackages; [cffi];
       };
-    pythonOverride = prev: (prevArgs: {
+    pythonOverride = prev: isNew: (prevArgs: {
       packageOverrides = let
         ourOverlay = new: old: {
-          objset = objset-python-drv prev old;
+          objset = objset-python-drv prev isNew old;
         };
       in
         prev.lib.composeExtensions
@@ -66,7 +69,7 @@
       in rec {
         packages = rec {
           objset = objset-drv pkgs;
-          objset-python = objset-python-drv pkgs pkgs.python3Packages;
+          objset-python = objset-python-drv pkgs false pkgs.python3Packages;
           default = objset;
         };
         devShells.default = pkgs.mkShell rec {
@@ -102,9 +105,9 @@
     // {
       overlays.default = final: prev: rec {
         objset = objset-drv prev;
-        python3 = prev.python3.override (pythonOverride prev);
-        python310 = prev.python310.override (pythonOverride prev);
-        python39 = prev.python39.override (pythonOverride prev);
+        python3 = prev.python3.override (pythonOverride prev true);
+        python310 = prev.python310.override (pythonOverride prev true);
+        python39 = prev.python39.override (pythonOverride prev false);
       };
     };
 }
