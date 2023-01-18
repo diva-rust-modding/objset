@@ -1,4 +1,3 @@
-use pyo3::PyObjectProtocol;
 use pyo3::PyResult;
 #[cfg(feature = "pyo3")]
 use pyo3::{prelude::*, *};
@@ -27,7 +26,9 @@ pub struct PVertexBuffers {
     #[pyo3(get, set)]
     pub color2: Vec<(f32, f32, f32, f32)>,
     #[pyo3(get, set)]
-    pub weights: Vec<PyBoneWeights>,
+    pub joint_weights: Vec<(f32, f32, f32, f32)>,
+    #[pyo3(get, set)]
+    pub joint_indices: Vec<(f32, f32, f32, f32)>,
 }
 
 //workaround cause cfg_attr doesn't work on the getter setter shorthand
@@ -50,6 +51,9 @@ impl BoneWeight {
     fn set_weight(&mut self, value: f32) -> PyResult<()> {
         self.weight = value;
         Ok(())
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("BoneWeight {:?}: {}", self.index, self.weight))
     }
 }
 
@@ -126,7 +130,8 @@ impl PyMesh {
             uv4,
             color1,
             color2,
-            weights,
+            joint_weights,
+            joint_indices,
         } = &self.vertex_buffers;
 
         let positions = set
@@ -174,9 +179,14 @@ impl PyMesh {
             .map(|&x| color2.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
-        let weights = set
+        let joint_weights = set
             .iter()
-            .map(|&x| weights.get(x as usize).cloned())
+            .map(|&x| joint_weights.get(x as usize).cloned())
+            .collect::<Option<Vec<_>>>()
+            .unwrap_or_default();
+        let joint_indices = set
+            .iter()
+            .map(|&x| joint_indices.get(x as usize).cloned())
             .collect::<Option<Vec<_>>>()
             .unwrap_or_default();
 
@@ -193,9 +203,17 @@ impl PyMesh {
                 uv4,
                 color1,
                 color2,
-                weights,
+                joint_weights,
+                joint_indices,
             },
         })
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "PyMesh: {} {} submesh(es)",
+            self.name,
+            self.submeshes.len()
+        ))
     }
 }
 
@@ -229,6 +247,14 @@ impl PySubMesh {
             .map(|(a, b, c)| (f(a), f(b), f(c)))
             .collect()
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "PySubMesh: {} faces, material id: {}, {} bone(s) rigged",
+            self.indicies.len(),
+            self.material_index,
+            self.bone_indicies.len()
+        ))
+    }
 }
 
 impl From<VertexBuffers> for PVertexBuffers {
@@ -246,7 +272,8 @@ impl From<VertexBuffers> for PVertexBuffers {
         let uv4 = v2(vbo.uv4);
         let color1 = v4(vbo.color1);
         let color2 = v4(vbo.color2);
-        let weights = vbo.weights.into_iter().map(Into::into).collect();
+        let joint_weights = v4(vbo.joint_weights);
+        let joint_indices = v4(vbo.joint_indices);
         Self {
             positions,
             normals,
@@ -257,8 +284,26 @@ impl From<VertexBuffers> for PVertexBuffers {
             uv4,
             color1,
             color2,
-            weights,
+            joint_weights,
+            joint_indices,
         }
+    }
+}
+
+#[pymethods]
+impl PyBoneWeights {
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "PyBoneWeights <{:?}: {}, {:?}: {}, {:?}: {}, {:?}: {}>",
+            self.first.index,
+            self.first.weight,
+            self.second.index,
+            self.second.weight,
+            self.third.index,
+            self.third.weight,
+            self.fourth.index,
+            self.fourth.weight
+        ))
     }
 }
 
@@ -343,48 +388,4 @@ fn tristrips(idx: Vec<u16>) -> Vec<Index> {
         }
     }
     vec
-}
-
-#[pyproto]
-impl<'p> PyObjectProtocol<'p> for PyMesh {
-    fn __repr__(&'p self) -> PyResult<String> {
-        Ok(format!(
-            "PyMesh: {} {} submesh(es)",
-            self.name,
-            self.submeshes.len()
-        ))
-    }
-}
-#[pyproto]
-impl<'p> PyObjectProtocol<'p> for PySubMesh {
-    fn __repr__(&'p self) -> PyResult<String> {
-        Ok(format!(
-            "PySubMesh: {} faces, material id: {}, {} bone(s) rigged",
-            self.indicies.len(),
-            self.material_index,
-            self.bone_indicies.len()
-        ))
-    }
-}
-#[pyproto]
-impl<'p> PyObjectProtocol<'p> for PyBoneWeights {
-    fn __repr__(&'p self) -> PyResult<String> {
-        Ok(format!(
-            "PyBoneWeights <{:?}: {}, {:?}: {}, {:?}: {}, {:?}: {}>",
-            self.first.index,
-            self.first.weight,
-            self.second.index,
-            self.second.weight,
-            self.third.index,
-            self.third.weight,
-            self.fourth.index,
-            self.fourth.weight
-        ))
-    }
-}
-#[pyproto]
-impl<'p> PyObjectProtocol<'p> for BoneWeight {
-    fn __repr__(&'p self) -> PyResult<String> {
-        Ok(format!("BoneWeight {:?}: {}", self.index, self.weight))
-    }
 }

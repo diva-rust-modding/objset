@@ -12,7 +12,6 @@ impl<'a> Object<'a> {
             let cto = |x| count_then_offset(i0, usize(u32(endian)), x);
 
             let (i, signature) = u32(endian)(i0)?;
-            println!("sig {:#X}", signature);
             //skip 4 bytes
             let i = &i[4..];
             let (i, bounding_sphere) = BoundingSphere::parse(i, endian)?;
@@ -42,7 +41,7 @@ impl<'a> ObjectSet<'a> {
             let cstr = map(take_until("\0"), String::from_utf8_lossy);
             let offset_cstr = offset_then(i0, cstr, endian);
 
-            let (i, sig) = u32(endian)(i0)?;
+            let (i, signature) = u32(endian)(i0)?;
             let (i, object_cnt) = usize(u32(endian))(i)?;
             let (i, bone_cnt) = usize(u32(endian))(i)?;
             let (i, object_tbl_ptr) = usize(u32(endian))(i)?;
@@ -51,15 +50,6 @@ impl<'a> ObjectSet<'a> {
             let (i, obj_id_ptr) = usize(u32(endian))(i)?;
             let (i, tex_id_ptr) = usize(u32(endian))(i)?;
             let (i, tex_id_cnt) = usize(u32(endian))(i)?;
-
-            dbg!(sig);
-            dbg!(object_cnt);
-            dbg!(bone_cnt);
-            dbg!(object_tbl_ptr);
-            dbg!(skel_tbl_ptr);
-            dbg!(obj_names_ptr);
-            dbg!(obj_id_ptr);
-            dbg!(tex_id_ptr);
 
             let (_, mut objects) = at_offset(
                 object_tbl_ptr,
@@ -82,13 +72,19 @@ impl<'a> ObjectSet<'a> {
                 .zip(obj_id.into_iter())
                 .zip(skeletons.into_iter())
             {
-                println!("{}: {}", id, name);
                 obj.name = name;
                 obj.id = id;
                 obj.skeleton = skeleton;
             }
 
-            Ok((i, Self { objects, tex_ids }))
+            Ok((
+                i,
+                Self {
+                    signature,
+                    objects,
+                    tex_ids,
+                },
+            ))
         }
     }
 }

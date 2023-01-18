@@ -10,12 +10,12 @@ type Matrix4 = mint::RowMatrix4<f32>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Texture {
-    sampler_flags: SamplerFlags,
-    id: u32,
-    flags: TextureFlags,
+    pub sampler_flags: SamplerFlags,
+    pub id: u32,
+    pub flags: TextureFlags,
     ex_shader: [u8; 8], //unknown. Always null
-    weight: f32,        //always 1.0
-    coordinate_matrix: Matrix4,
+    pub weight: f32,    //always 1.0
+    pub coordinate_matrix: Matrix4,
 }
 
 #[cfg(feature = "pyo3")]
@@ -41,9 +41,9 @@ pub struct SamplerFlags {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TextureFlags {
-    map: TextureMap,
-    uv_index: UvIndex,
-    uv_translation: UvTranslationType,
+    pub map: TextureMap,
+    pub uv_index: Option<UvIndex>,
+    pub uv_translation: UvTranslationType,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -70,7 +70,6 @@ pub enum TextureMap {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum UvIndex {
-    None = 15,
     Index0 = 0,
     Index1,
     Index2,
@@ -79,4 +78,8 @@ pub enum UvIndex {
     Index5,
     Index6,
     Index7,
+}
+
+impl UvIndex {
+    const NONE: u32 = 15;
 }

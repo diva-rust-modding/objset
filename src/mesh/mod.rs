@@ -31,7 +31,9 @@ pub struct VertexBuffers {
     pub uv4: Vec<Vec2>,
     pub color1: Vec<Vec4>,
     pub color2: Vec<Vec4>,
-    pub weights: Vec<BoneWeights>,
+    pub joint_weights: Vec<Vec4>,
+    /// The bone weight indices, -1 represents no joint
+    pub joint_indices: Vec<Vec4>,
 }
 
 #[derive(Debug, PartialEq, Clone)]

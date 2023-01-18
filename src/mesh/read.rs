@@ -179,35 +179,8 @@ impl VertexBuffers {
             let uv4 = v2(offests.uv4)?.1;
             let color1 = v4(offests.color1)?.1;
             let color2 = v4(offests.color2)?.1;
-            let bone_weights = v4(offests.bone_weights)?.1;
-            let bone_indicies = v4(offests.bone_indicies)?.1;
-
-            let id = |x| if x != -1. { Some(x as u16) } else { None };
-
-            let weights = bone_weights
-                .into_iter()
-                .zip(bone_indicies.into_iter())
-                .map(|(w, i)| {
-                    BoneWeights([
-                        BoneWeight {
-                            index: id(i.x),
-                            weight: w.x,
-                        },
-                        BoneWeight {
-                            index: id(i.y),
-                            weight: w.y,
-                        },
-                        BoneWeight {
-                            index: id(i.z),
-                            weight: w.z,
-                        },
-                        BoneWeight {
-                            index: id(i.w),
-                            weight: w.w,
-                        },
-                    ])
-                })
-                .collect();
+            let joint_weights = v4(offests.bone_weights)?.1;
+            let joint_indices = v4(offests.bone_indicies)?.1;
 
             Ok((
                 i0,
@@ -221,7 +194,8 @@ impl VertexBuffers {
                     uv4,
                     color1,
                     color2,
-                    weights,
+                    joint_weights,
+                    joint_indices,
                 },
             ))
         }
@@ -237,12 +211,9 @@ impl<'b> Mesh<'b> {
         move |i: &'b [u8]| {
             let cto = |f| count_then_offset(i0, usize(u32(endian)), f);
             //skip 4 bytes
-            println!("----------Mesh start----------");
             let i = &i[4..];
             let (i, bounding_sphere) = BoundingSphere::parse(i, endian)?;
             let (_, (submeshes_cnt, submeshes_ptr)) = tuple((u32(endian), u32(endian)))(i)?;
-            dbg!(submeshes_cnt);
-            dbg!(submeshes_ptr);
             let (i, submeshes) = cto(SubMesh::parse(i0, endian))(i)?;
             let (i, _attr) = MeshInfoBitField::parse(i)?;
             let (i, _stride) = u32(endian)(i)?;
@@ -251,9 +222,6 @@ impl<'b> Mesh<'b> {
             let (_, vertex_buffers) = VertexBuffers::parse(vert_count, offsets, endian)(i0)?;
             let i = &i[4..];
             let (i, name) = string64(i)?;
-            println!("{}", name);
-            // println!("vert {} normals {} tangents {}", vertex_buffers.positions.len(), vertex_buffers.normals.len(), vertex_buffers.tangents.len());
-            // println!("first vert {:?}", vertex_buffers.positions[0]);
             Ok((
                 i,
                 Self {
@@ -286,7 +254,6 @@ impl SubMesh {
             let primitive = primitive.expect("Unexpected primitive type found");
             let (i, index_format) = IndexType::parse(endian)(i)?;
             let index_format = index_format.expect("Unexpected index format found");
-            println!("{:?}", index_format);
             // let (i, index_cnt) = u32_usize(endian)(i)?;
             // let (i, indicies) = offset_then(
             //     i0,

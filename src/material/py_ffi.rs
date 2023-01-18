@@ -1,5 +1,4 @@
 use pyo3::prelude::*;
-use pyo3::PyObjectProtocol;
 use pyo3::PyResult;
 
 use super::*;
@@ -46,9 +45,9 @@ impl From<Material> for PyMaterial {
     }
 }
 
-#[pyproto]
-impl<'p> PyObjectProtocol<'p> for PyMaterial {
-    fn __repr__(&'p self) -> PyResult<String> {
+#[pymethods]
+impl PyMaterial {
+    fn __repr__(&self) -> PyResult<String> {
         Ok(format!(
             "PyMaterial {}: {} {} texture(s)",
             self.name,
