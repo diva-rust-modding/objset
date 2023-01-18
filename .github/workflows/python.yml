@@ -32,7 +32,7 @@ jobs:
           target: x86_64
           args: --release --out dist --no-sdist --cargo-extra-args="--all-features"
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: wheels
           path: dist
@@ -60,7 +60,7 @@ jobs:
           target: ${{ matrix.target }}
           args: --release --out dist --no-sdist --cargo-extra-args="--all-features"
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: wheels
           path: dist
@@ -84,7 +84,7 @@ jobs:
         manylinux: auto
         args: --release --out dist --no-sdist --cargo-extra-args="--all-features"
     - name: Upload wheels
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: wheels
         path: dist
@@ -108,7 +108,7 @@ jobs:
   #       manylinux: auto
   #       args: --release --out dist --no-sdist --cargo-extra-args="--all-features"
   #   - name: Upload wheels
-  #     uses: actions/upload-artifact@v2
+  #     uses: actions/upload-artifact@v3
   #     with:
   #       name: wheels
   #       path: dist
