@@ -24,6 +24,8 @@
 
         src = ./.;
 
+        buildFeatures = [ "pyo3" ];
+
         cargoLock = {
           # Why I yes, I would like not writing the hash of my Cargo.lock very much.
           lockFile = ./Cargo.lock;
