@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.0](https://github.com/Waelwindows/objset/compare/v0.1.0...v0.2.0) (2023-01-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* Split `BoneWeights`
+
+### Features
+
+* Make material fields public ([1ec7822](https://github.com/Waelwindows/objset/commit/1ec78229dadd1bd80fe3f2f99bcc6df4756392ea))
+* Split `BoneWeights` ([d270a58](https://github.com/Waelwindows/objset/commit/d270a5891783f93904773f038afb5c3eec887f67))
+* Store objset magic signature ([7005d95](https://github.com/Waelwindows/objset/commit/7005d952ca9165065ec560fdb89e8cee75232e67))
+
+
+### Bug Fixes
+
+* **nix:** Update flake due to changes in nixpkgs ([e9dfe33](https://github.com/Waelwindows/objset/commit/e9dfe3335dd7def6aead5ac9dceb715326dca1b9))
+
 ## 0.1.0 (2022-01-04)
 
 
