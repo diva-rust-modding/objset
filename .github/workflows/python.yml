@@ -56,7 +56,7 @@ jobs:
           target: "aarch64-apple-darwin"
           args: --release --out dist --no-sdist --cargo-extra-args="--all-features"
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: wheels
           path: dist
